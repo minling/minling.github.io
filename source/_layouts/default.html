@@ -1,14 +1,37 @@
 {% capture root_url %}{{ site.root | strip_slash }}{% endcapture %}
 {% include head.html %}
-<body {% if page.body_id %} id="{{ page.body_id }}" {% endif %} {% if page.sidebar == false %} class="no-sidebar" {% endif %} {% if page.sidebar == 'collapse' or site.sidebar == 'collapse' %} class="collapse-sidebar sidebar-footer" {% endif %}>
-  <header role="banner">{% include header.html %}</header>
-  <nav role="navigation">{% include navigation.html %}</nav>
-  <div id="main">
-    <div id="content">
-      {{ content | expand_urls: root_url }}
-    </div>
-  </div>
-  <footer role="contentinfo">{% include footer.html %}</footer>
-  {% include after_footer.html %}
+	<header class="band" data-0="background-position:0px 0px;" data-500="background-position:0px -250px;">
+		<div class="container">
+			<div class="columns sixteen" data-0="opacity: 1" data-180="opacity: 0">
+        {% include header.html %}
+        {% include navigation.html %}
+			</div>
+		</div>
+	</header>
+
+	<div class="band main">
+		<div class="container">
+			<div class="columns twelve offset-by-two">
+        {{ content | expand_urls: root_url }}
+			</div>
+		</div>
+	</div>
+
+	<footer class="band main">
+		<div class="container">
+			<div class="columns sixteen">
+        {% include footer.html %}
+        {% include after_footer.html %}
+			</div>
+		</div>
+	</footer>
+
+	<script type="text/javascript" src="/javascripts/skrollr.js"></script>
+	<script type="text/javascript">
+	skrollr.init({
+		forceHeight: false
+	});
+	</script>
+</script>
 </body>
-</html>
+
