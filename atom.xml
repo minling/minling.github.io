@@ -4,7 +4,7 @@
   <title><![CDATA[Theory of Coding]]></title>
   <link href="http://minling.github.io/atom.xml" rel="self"/>
   <link href="http://minling.github.io/"/>
-  <updated>2015-06-18T09:02:42-04:00</updated>
+  <updated>2015-07-02T00:49:55-04:00</updated>
   <id>http://minling.github.io/</id>
   <author>
     <name><![CDATA[MinLing Zhao]]></name>
@@ -12,6 +12,272 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Associations]]></title>
+    <link href="http://minling.github.io/blog/2015/07/02/associations/"/>
+    <updated>2015-07-02T00:49:11-04:00</updated>
+    <id>http://minling.github.io/blog/2015/07/02/associations</id>
+    <content type="html"><![CDATA[<h2>Active Record and Associations with Sinatra</h2>
+
+<p><img src="https://upload.wikimedia.org/wikipedia/en/2/2c/Sinatralogo.png" alt="Sinatra" /></p>
+
+<p>Sinatra is a domain specific language that wraps HTTP requests and responses on top of Rack. Sinatra is similar to Ruby; they are both web frameworks. Sinatra is used for smaller web applications.</p>
+
+<p>When you want to build something, like say a web application where a user can submit a blog post, ActiveRecord is a great framework to use to keep track of databases and their data, and also their associations.</p>
+
+<p>Here is a sample migration for creating the posts table. author_id is the association of the posts to the author.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">CreatePosts</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Migration</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">change</span>
+</span><span class='line'>    <span class="n">create_table</span> <span class="ss">:posts</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">string</span> <span class="ss">:title</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">text</span> <span class="ss">:content</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">integer</span> <span class="ss">:author_id</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Eventually you will have a database that will look something like these charts, filled with seed data.</p>
+
+<p>Posts Table</p>
+
+<table>
+<thead>
+<tr>
+<th> id </th>
+<th> title </th>
+<th> Content </th>
+<th> Author_id </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> 1  </td>
+<td> &ldquo;cats&rdquo;</td>
+<td> &ldquo;meow meow&rdquo; </td>
+<td> 1         </td>
+</tr>
+<tr>
+<td> 2  </td>
+<td> &ldquo;dogs&rdquo;</td>
+<td> &ldquo;woof woof&rdquo; </td>
+<td> 2         </td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Author table</p>
+
+<table>
+<thead>
+<tr>
+<th> id </th>
+<th> author </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> 1  </td>
+<td> &ldquo;Mr Kitty&rdquo;</td>
+</tr>
+<tr>
+<td> 2  </td>
+<td> &ldquo;Mr Puppy&rdquo;</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Tags Table</p>
+
+<table>
+<thead>
+<tr>
+<th> id </th>
+<th> tag </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> 1  </td>
+<td> cats</td>
+</tr>
+<tr>
+<td> 2  </td>
+<td> dogs</td>
+</tr>
+<tr>
+<td> 3  </td>
+<td> parks</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Post_tags table &mdash;> needed because posts has many tags, and tags has many posts, so there must be a join table created to satisfy those requirements. It is not simply just a table that either has_many or belongs_to anymore.</p>
+
+<table>
+<thead>
+<tr>
+<th> id </th>
+<th> post_id </th>
+<th> tag_id </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> 1  </td>
+<td> 1 </td>
+<td> 1</td>
+</tr>
+<tr>
+<td> 2  </td>
+<td> 2</td>
+<td> 2</td>
+</tr>
+<tr>
+<td> 3 </td>
+<td> 2 </td>
+<td> 3 </td>
+</tr>
+</tbody>
+</table>
+
+
+<p>So here, the first blog post called &ldquo;cats&rdquo; will have the tags cats.
+But for the second blog post called &ldquo;dogs&rdquo; it will have the tags dogs, and also parks.</p>
+
+<p>Now here are the models</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Posts</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:author</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:post_tags</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:tags</span><span class="p">,</span> <span class="ss">through</span><span class="p">:</span> <span class="ss">:post_tags</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>because the posts table has &ldquo;author_id&rdquo;, which means that posts belongs to an author, and an author will have many posts. Also, you must write &ldquo;has_many&rdquo; &ldquo;:post_tags&rdquo; so you can mention the join table before mentioning that posts &ldquo;has_many&rdquo; tags through the join table.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Author</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:posts</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Tags</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:posts</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">PostTags</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'> <span class="n">belongs_to</span> <span class="ss">:post</span>
+</span><span class='line'> <span class="n">belongs_to</span> <span class="ss">:tag</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Tag</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:post_tags</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:posts</span><span class="p">,</span> <span class="ss">:through</span> <span class="o">=&gt;</span> <span class="ss">:post_tags</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<blockquote><p>Some tips:</p>
+
+<p>When writing belongs_to for a class, whatever it belongs to will typically have &ldquo;has_many&rdquo;.</p>
+
+<p>eg. class Author &ldquo;has_many&rdquo; posts, while Posts &ldquo;belong_to&rdquo; Author</p>
+
+<p>When associating with join tables, mention the join table, and then write &ldquo;has_many&rdquo; something through the join table in the next line.
+eg. Like so in &ldquo;class Posts&rdquo; above.</p></blockquote>
+
+<p>Provided that you have seed data, and that you want to associate a post with an author, you can first think about the author as the parent, and posts as the child (because posts belongs to an author, and an author has many posts.)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># In a console, possibly in pry, </span>
+</span><span class='line'><span class="n">author</span> <span class="o">=</span> <span class="no">Author</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#=&gt;in Author class, find the author with id 1. Now author is set to the Author object with id 1.</span>
+</span><span class='line'><span class="n">post</span> <span class="o">=</span> <span class="no">Post</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c1">#=&gt;in Post class, find the post with id 2 and set it to the variable post.</span>
+</span><span class='line'><span class="n">author</span><span class="o">.</span><span class="n">posts</span> <span class="c1">#=&gt; []  this gives you an empty array right now.</span>
+</span><span class='line'><span class="n">author</span><span class="o">.</span><span class="n">posts</span> <span class="o">&lt;&lt;</span> <span class="n">post</span>  <span class="c1">#=&gt; shovel in the post with #2 to the author.posts array</span>
+</span><span class='line'><span class="n">author</span><span class="o">.</span><span class="n">posts</span> <span class="c1">#=&gt;Now will include the Post object of id 2.</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When associating with Sinatra, if the model of is associated with another model, you can write that association inside the Controller.
+If there was a blog controller with Sinatra:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BlogController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@blogs</span> <span class="o">=</span> <span class="no">Blog</span><span class="o">.</span><span class="n">all</span>
+</span><span class='line'>    <span class="ss">erb</span><span class="p">:</span> <span class="ss">:&#39;/blogs/index&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">get</span> <span class="s1">&#39;/blog/new&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@authors</span> <span class="o">=</span> <span class="no">Author</span><span class="o">.</span><span class="n">all</span>
+</span><span class='line'>    <span class="ss">erb</span><span class="p">:</span> <span class="ss">:&#39;blogs/new&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In the blogs controller, if you wanted to create a new blog post and went to the form to input the new blog post data, you can also asisgn it to an author, to have an author association too. As long as you associated with authors in the post model, you can access it.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[My First Post on Octopress]]></title>

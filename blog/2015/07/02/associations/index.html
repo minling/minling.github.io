@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Theory of Coding</title>
+  <title>Associations - Theory of Coding</title>
   <meta name="author" content="MinLing Zhao">
 
   
@@ -21,7 +21,7 @@
 		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
   
-  <link rel="canonical" href="http://minling.github.io">
+  <link rel="canonical" href="http://minling.github.io/blog/2015/07/02/associations">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Theory of Coding" type="application/atom+xml">
@@ -63,15 +63,12 @@
 	<div class="band main">
 		<div class="container">
 			<div class="columns twelve offset-by-two">
-        <div class="blog-index">
+        <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2015/07/02/associations/">Associations</a></h1>
+      <h1 class="entry-title">Associations</h1>
     
     
       <p class="meta">
@@ -94,7 +91,7 @@
   </header>
 
 
-  <div class="entry-content"><h2>Active Record and Associations with Sinatra</h2>
+<div class="entry-content"><h2>Active Record and Associations with Sinatra</h2>
 
 <p><img src="https://upload.wikimedia.org/wikipedia/en/2/2c/Sinatralogo.png" alt="Sinatra" /></p>
 
@@ -353,147 +350,19 @@ If there was a blog controller with Sinatra:</p>
 
 <p>In the blogs controller, if you wanted to create a new blog post and went to the form to input the new blog post data, you can also asisgn it to an author, to have an author association too. As long as you associated with authors in the post model, you can access it.</p>
 </div>
-  
-  
 
 
-    </article>
-  
-  
-    <article>
+  <footer>
+    <p class="meta">
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/17/my-first-post-on-octopress/">My First Post on Octopress</a></h1>
-    
-    
-      <p class="meta">
-        
 
 
+    </p>
+  </footer>
+</article>
 
-
-
-
-
-
-  
-
-
-<time datetime="2015-06-17T20:50:57-04:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h1>1. Introduction</h1>
-
-<h1>2. .tap for Ruby</h1>
-
-<p>  scroll to the end to read about .tap for Ruby</p>
-
-<h2>Why am I at Flatiron?</h2>
-
-<p>Hi there! My name is Minling and I just graduated with a bachelors in Biomolecular Sciences. Although I love biology and its cute little microorganisms, I was always into technology. More often times than not have I said &ldquo;wow wouldn&rsquo;t it be cool if I built this&hellip;&rdquo;, &ldquo;oh wait nevermind, I don&rsquo;t even know how to get code.&rdquo;</p>
-
-<p><strong>Time is a limited resource, and if lost, it will never be found.</strong></p>
-
-<p>With a finite number of heartbeats in a lifetime, and a finite amount of hours in a day, there is just absolutely no time to waste. People ponder for a long time whether they have taken that risk, but that is just too much time spent being indecisive.
-<img src="http://brandchannel.com/wp-content/uploads/2013/07/Nike-JustDoIt-560.jpg" alt="Nike just do it" /></p>
-
-<p>What if you just did it?</p>
-
-<p>If you fail, it&rsquo;ll be a great lesson to learn, but if you don&rsquo;t, you win.</p>
-
-<blockquote><p><strong>“Any chance not taken is an opportunity missed.”
-― Ken Petti</strong></p></blockquote>
-
-<p>Of course it is said easier than done. You can sit there all day looking at motivational quotes but until you make that first step, you aren&rsquo;t actually listening to any of it.</p>
-
-<p>Some people have lateness issues but it isn&rsquo;t because they don&rsquo;t care enough to change, or respect other people&rsquo;s time. They may have other issues in their life that prevents them from realizing the importance of being on time. No matter how much they are told to be on time, they will never be on time, because they have&rsquo;t gotten to that realization yet. People can&rsquo;t be progammed to change, it is up to their own will.</p>
-
-<p>There are people who are creators and others who just want to experience the creations. I want to be a creator of beautiful things. I want to build meaningful, memorable apps that would make someone&rsquo;s life easier or something cool that people would use. I want to make a dent in this world with my creations.</p>
-
-<p>Sometimes when times get hard, I fall back to pondering whether I have made the right decision, because I made a drastic change in my life to learn to code. I could have stayed in biology and tried to go forward in my career, but I wouldn&rsquo;t be able to bring my crazy ideas to reality. I guess I&rsquo;ll never know until it all happens.</p>
-
-<blockquote><p>“You can’t connect the dots looking forward; you can only connect them looking backwards. So you have to trust that the dots will somehow connect in your future. You have to trust in something — your gut, destiny, life, karma, whatever. This approach has never let me down, and it has made all the difference in my life.”</p>
-
-<p>~ Steve Jobs</p></blockquote>
-
-<h2>#tap dat &hellip;</h2>
-
-<p>A few times I encountered the usage of #tap in Ruby.</p>
-
-<blockquote><p>tap{|x|&hellip;} → obj</p>
-
-<p>Yields self to the block, and then returns self. The primary purpose of this method is to “tap into” a method chain, in order to perform operations on intermediate results within the chain.</p></blockquote>
-
-<p>Although that is the definition of the Ruby Doc, it isn&rsquo;t quite clear on how to use it, at least it wasn&rsquo;t clear to me.</p>
-
-<p>Essentially, this is what .tap does</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Object</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">tap</span>
-</span><span class='line'>    <span class="k">yield</span> <span class="nb">self</span>
-</span><span class='line'>    <span class="nb">self</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">cats</span>
-</span><span class='line'>  <span class="n">array</span> <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;paws&#39;</span><span class="p">,</span> <span class="s1">&#39;furry&#39;</span><span class="p">,</span> <span class="s1">&#39;cute&#39;</span><span class="o">]</span>
-</span><span class='line'>  <span class="n">array</span><span class="o">.</span><span class="n">reverse!</span>
-</span><span class='line'>  <span class="n">array</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="c1">#=&gt; [&quot;cute&quot;, &quot;furry&quot;, &quot;paws&quot;] </span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Using .tap will achieve the same in one line.</p>
-
-<p>You can use the object to do something, and then it wil return itself at the end.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">cats</span>
-</span><span class='line'>  <span class="o">[</span><span class="s1">&#39;paws&#39;</span><span class="p">,</span> <span class="s1">&#39;furry&#39;</span><span class="p">,</span> <span class="s1">&#39;cute&#39;</span><span class="o">].</span><span class="n">tap</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:reverse!</span><span class="p">)</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="c1">#=&gt; [&quot;cute&quot;, &quot;furry&quot;, &quot;paws&quot;] </span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><img src="https://igcdn-photos-c-a.akamaihd.net/hphotos-ak-xaf1/t51.2885-15/11335852_1441788479455650_419649704_n.jpg" alt="cats" />
-Kitty: &ldquo;Smells like a good method.&rdquo;</p>
 </div>
-  
-  
 
-
-    </article>
-  
-  <div class="pagination">
-    
-    
-  </div>
-</div>
 <aside class="sidebar">
   
     <section>
@@ -517,6 +386,7 @@ Kitty: &ldquo;Smells like a good method.&rdquo;</p>
 
   
 </aside>
+
 
 			</div>
 		</div>
