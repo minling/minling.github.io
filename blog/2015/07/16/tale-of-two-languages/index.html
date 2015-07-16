@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Theory of Coding</title>
+  <title>Tale of Two Languages - Theory of Coding</title>
   <meta name="author" content="MinLing Zhao">
 
   
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://minling.github.io">
+  <link rel="canonical" href="http://minling.github.io/blog/2015/07/16/tale-of-two-languages">
   <link href="/favicon.ico" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Theory of Coding" type="application/atom+xml">
@@ -66,15 +66,12 @@
   
   <div id="main">
     <div id="content">
-      <div class="blog-index">
+      <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2015/07/16/tale-of-two-languages/">Tale of Two Languages</a></h1>
+      <h1 class="entry-title">Tale of Two Languages</h1>
     
     
       <p class="meta">
@@ -97,7 +94,7 @@
   </header>
 
 
-  <div class="entry-content"><h1>Ruby vs. Javascript</h1>
+<div class="entry-content"><h1>Ruby vs. Javascript</h1>
 
 <h2>Tale of Two Languages</h2>
 
@@ -409,315 +406,16 @@ Ruby:
 <p>Javascript:
 [-5, 15, 20].reduce(function(sum, value) { return sum + value; }, 0) // 30</p>
 </div>
-  
-  
 
 
-    </article>
-  
-  
-    <article>
+  <footer>
+    <p class="meta">
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/07/02/associations/">Associations</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
   
 
+<span class="byline author vcard">Posted by <span class="fn">MinLing Zhao</span></span>
 
-<time datetime="2015-07-02T00:49:11-04:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>Active Record and Associations with Sinatra</h2>
-
-<p><img src="https://upload.wikimedia.org/wikipedia/en/2/2c/Sinatralogo.png" alt="Sinatra" /></p>
-
-<p>Sinatra is a domain specific language that wraps HTTP requests and responses on top of Rack. Sinatra is similar to Ruby; they are both web frameworks. Sinatra is used for smaller web applications.</p>
-
-<p>When you want to build something, like say a web application where a user can submit a blog post, ActiveRecord is a great framework to use to keep track of databases and their data, and also their associations.</p>
-
-<p>Here is a sample migration for creating the posts table. author_id is the association of the posts to the author.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">CreatePosts</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Migration</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">change</span>
-</span><span class='line'>    <span class="n">create_table</span> <span class="ss">:posts</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
-</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">string</span> <span class="ss">:title</span>
-</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">text</span> <span class="ss">:content</span>
-</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">integer</span> <span class="ss">:author_id</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Eventually you will have a database that will look something like these charts, filled with seed data.</p>
-
-<p>Posts Table</p>
-
-<table>
-<thead>
-<tr>
-<th> id </th>
-<th> title </th>
-<th> Content </th>
-<th> Author_id </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td> 1  </td>
-<td> &ldquo;cats&rdquo;</td>
-<td> &ldquo;meow meow&rdquo; </td>
-<td> 1         </td>
-</tr>
-<tr>
-<td> 2  </td>
-<td> &ldquo;dogs&rdquo;</td>
-<td> &ldquo;woof woof&rdquo; </td>
-<td> 2         </td>
-</tr>
-</tbody>
-</table>
-
-
-<p>Author table</p>
-
-<table>
-<thead>
-<tr>
-<th> id </th>
-<th> author </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td> 1  </td>
-<td> &ldquo;Mr Kitty&rdquo;</td>
-</tr>
-<tr>
-<td> 2  </td>
-<td> &ldquo;Mr Puppy&rdquo;</td>
-</tr>
-</tbody>
-</table>
-
-
-<p>Tags Table</p>
-
-<table>
-<thead>
-<tr>
-<th> id </th>
-<th> tag </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td> 1  </td>
-<td> cats</td>
-</tr>
-<tr>
-<td> 2  </td>
-<td> dogs</td>
-</tr>
-<tr>
-<td> 3  </td>
-<td> parks</td>
-</tr>
-</tbody>
-</table>
-
-
-<p>Post_tags table &mdash;> needed because posts has many tags, and tags has many posts, so there must be a join table created to satisfy those requirements. It is not simply just a table that either has_many or belongs_to anymore.</p>
-
-<table>
-<thead>
-<tr>
-<th> id </th>
-<th> post_id </th>
-<th> tag_id </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td> 1  </td>
-<td> 1 </td>
-<td> 1</td>
-</tr>
-<tr>
-<td> 2  </td>
-<td> 2</td>
-<td> 2</td>
-</tr>
-<tr>
-<td> 3 </td>
-<td> 2 </td>
-<td> 3 </td>
-</tr>
-</tbody>
-</table>
-
-
-<p>So here, the first blog post called &ldquo;cats&rdquo; will have the tags cats.
-But for the second blog post called &ldquo;dogs&rdquo; it will have the tags dogs, and also parks.</p>
-
-<p>Now here are the models</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Posts</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:author</span>
-</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:post_tags</span>
-</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:tags</span><span class="p">,</span> <span class="ss">through</span><span class="p">:</span> <span class="ss">:post_tags</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>because the posts table has &ldquo;author_id&rdquo;, which means that posts belongs to an author, and an author will have many posts. Also, you must write &ldquo;has_many&rdquo; &ldquo;:post_tags&rdquo; so you can mention the join table before mentioning that posts &ldquo;has_many&rdquo; tags through the join table.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Author</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:posts</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Tags</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:posts</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">PostTags</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-</span><span class='line'> <span class="n">belongs_to</span> <span class="ss">:post</span>
-</span><span class='line'> <span class="n">belongs_to</span> <span class="ss">:tag</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Tag</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:post_tags</span>
-</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:posts</span><span class="p">,</span> <span class="ss">:through</span> <span class="o">=&gt;</span> <span class="ss">:post_tags</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<blockquote><p>Some tips:</p>
-
-<p>When writing belongs_to for a class, whatever it belongs to will typically have &ldquo;has_many&rdquo;.</p>
-
-<p>eg. class Author &ldquo;has_many&rdquo; posts, while Posts &ldquo;belong_to&rdquo; Author</p>
-
-<p>When associating with join tables, mention the join table, and then write &ldquo;has_many&rdquo; something through the join table in the next line.
-eg. Like so in &ldquo;class Posts&rdquo; above.</p></blockquote>
-
-<p>Provided that you have seed data, and that you want to associate a post with an author, you can first think about the author as the parent, and posts as the child (because posts belongs to an author, and an author has many posts.)</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># In a console, possibly in pry, </span>
-</span><span class='line'><span class="n">author</span> <span class="o">=</span> <span class="no">Author</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#=&gt;in Author class, find the author with id 1. Now author is set to the Author object with id 1.</span>
-</span><span class='line'><span class="n">post</span> <span class="o">=</span> <span class="no">Post</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c1">#=&gt;in Post class, find the post with id 2 and set it to the variable post.</span>
-</span><span class='line'><span class="n">author</span><span class="o">.</span><span class="n">posts</span> <span class="c1">#=&gt; []  this gives you an empty array right now.</span>
-</span><span class='line'><span class="n">author</span><span class="o">.</span><span class="n">posts</span> <span class="o">&lt;&lt;</span> <span class="n">post</span>  <span class="c1">#=&gt; shovel in the post with #2 to the author.posts array</span>
-</span><span class='line'><span class="n">author</span><span class="o">.</span><span class="n">posts</span> <span class="c1">#=&gt;Now will include the Post object of id 2.</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>When associating with Sinatra, if the model of is associated with another model, you can write that association inside the Controller.
-If there was a blog controller with Sinatra:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">BlogController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
-</span><span class='line'>  <span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
-</span><span class='line'>    <span class="vi">@blogs</span> <span class="o">=</span> <span class="no">Blog</span><span class="o">.</span><span class="n">all</span>
-</span><span class='line'>    <span class="ss">erb</span><span class="p">:</span> <span class="ss">:&#39;/blogs/index&#39;</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">get</span> <span class="s1">&#39;/blog/new&#39;</span> <span class="k">do</span>
-</span><span class='line'>    <span class="vi">@authors</span> <span class="o">=</span> <span class="no">Author</span><span class="o">.</span><span class="n">all</span>
-</span><span class='line'>    <span class="ss">erb</span><span class="p">:</span> <span class="ss">:&#39;blogs/new&#39;</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>In the blogs controller, if you wanted to create a new blog post and went to the form to input the new blog post data, you can also asisgn it to an author, to have an author association too. As long as you associated with authors in the post model, you can access it.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/17/my-first-post-on-octopress/">My First Post on Octopress</a></h1>
-    
-    
-      <p class="meta">
-        
 
 
 
@@ -729,120 +427,60 @@ If there was a blog controller with Sinatra:</p>
   
 
 
-<time datetime="2015-06-17T20:50:57-04:00" pubdate data-updated="true"></time>
-        
-      </p>
+<time datetime="2015-07-16T00:39:28-04:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
     
-  </header>
-
-
-  <div class="entry-content"><h1>1. Introduction</h1>
-
-<h1>2. .tap for Ruby</h1>
-
-<p>  scroll to the end to read about .tap for Ruby</p>
-
-<h2>Why am I at Flatiron?</h2>
-
-<p>Hi there! My name is Minling and I just graduated with a bachelors in Biomolecular Sciences. Although I love biology and its cute little microorganisms, I was always into technology. More often times than not have I said &ldquo;wow wouldn&rsquo;t it be cool if I built this&hellip;&rdquo;, &ldquo;oh wait nevermind, I don&rsquo;t even know how to get code.&rdquo;</p>
-
-<p><strong>Time is a limited resource, and if lost, it will never be found.</strong></p>
-
-<p>With a finite number of heartbeats in a lifetime, and a finite amount of hours in a day, there is just absolutely no time to waste. People ponder for a long time whether they have taken that risk, but that is just too much time spent being indecisive.
-<img src="http://brandchannel.com/wp-content/uploads/2013/07/Nike-JustDoIt-560.jpg" alt="Nike just do it" /></p>
-
-<p>What if you just did it?</p>
-
-<p>If you fail, it&rsquo;ll be a great lesson to learn, but if you don&rsquo;t, you win.</p>
-
-<blockquote><p><strong>“Any chance not taken is an opportunity missed.”
-― Ken Petti</strong></p></blockquote>
-
-<p>Of course it is said easier than done. You can sit there all day looking at motivational quotes but until you make that first step, you aren&rsquo;t actually listening to any of it.</p>
-
-<p>Some people have lateness issues but it isn&rsquo;t because they don&rsquo;t care enough to change, or respect other people&rsquo;s time. They may have other issues in their life that prevents them from realizing the importance of being on time. No matter how much they are told to be on time, they will never be on time, because they have&rsquo;t gotten to that realization yet. People can&rsquo;t be progammed to change, it is up to their own will.</p>
-
-<p>There are people who are creators and others who just want to experience the creations. I want to be a creator of beautiful things. I want to build meaningful, memorable apps that would make someone&rsquo;s life easier or something cool that people would use. I want to make a dent in this world with my creations.</p>
-
-<p>Sometimes when times get hard, I fall back to pondering whether I have made the right decision, because I made a drastic change in my life to learn to code. I could have stayed in biology and tried to go forward in my career, but I wouldn&rsquo;t be able to bring my crazy ideas to reality. I guess I&rsquo;ll never know until it all happens.</p>
-
-<blockquote><p>“You can’t connect the dots looking forward; you can only connect them looking backwards. So you have to trust that the dots will somehow connect in your future. You have to trust in something — your gut, destiny, life, karma, whatever. This approach has never let me down, and it has made all the difference in my life.”</p>
-
-<p>~ Steve Jobs</p></blockquote>
-
-<h2>#tap dat &hellip;</h2>
-
-<p>A few times I encountered the usage of #tap in Ruby.</p>
-
-<blockquote><p>tap{|x|&hellip;} → obj</p>
-
-<p>Yields self to the block, and then returns self. The primary purpose of this method is to “tap into” a method chain, in order to perform operations on intermediate results within the chain.</p></blockquote>
-
-<p>Although that is the definition of the Ruby Doc, it isn&rsquo;t quite clear on how to use it, at least it wasn&rsquo;t clear to me.</p>
-
-<p>Essentially, this is what .tap does</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Object</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">tap</span>
-</span><span class='line'>    <span class="k">yield</span> <span class="nb">self</span>
-</span><span class='line'>    <span class="nb">self</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">cats</span>
-</span><span class='line'>  <span class="n">array</span> <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;paws&#39;</span><span class="p">,</span> <span class="s1">&#39;furry&#39;</span><span class="p">,</span> <span class="s1">&#39;cute&#39;</span><span class="o">]</span>
-</span><span class='line'>  <span class="n">array</span><span class="o">.</span><span class="n">reverse!</span>
-</span><span class='line'>  <span class="n">array</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="c1">#=&gt; [&quot;cute&quot;, &quot;furry&quot;, &quot;paws&quot;] </span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Using .tap will achieve the same in one line.</p>
-
-<p>You can use the object to do something, and then it wil return itself at the end.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">cats</span>
-</span><span class='line'>  <span class="o">[</span><span class="s1">&#39;paws&#39;</span><span class="p">,</span> <span class="s1">&#39;furry&#39;</span><span class="p">,</span> <span class="s1">&#39;cute&#39;</span><span class="o">].</span><span class="n">tap</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:reverse!</span><span class="p">)</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="c1">#=&gt; [&quot;cute&quot;, &quot;furry&quot;, &quot;paws&quot;] </span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><img src="https://igcdn-photos-c-a.akamaihd.net/hphotos-ak-xaf1/t51.2885-15/11335852_1441788479455650_419649704_n.jpg" alt="cats" />
-Kitty: &ldquo;Smells like a good method.&rdquo;</p>
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://minling.github.io/blog/2015/07/16/tale-of-two-languages/" data-via="" data-counturl="http://minling.github.io/blog/2015/07/16/tale-of-two-languages/" >Tweet</a>
+  
+  
+  
 </div>
-  
-  
 
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/07/02/associations/" title="Previous Post: associations">&laquo; associations</a>
+      
+      
+    </p>
+  </footer>
+</article>
 
-    </article>
-  
-  <div class="pagination">
-    
-    
-  </div>
 </div>
+<!-- 
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/07/16/tale-of-two-languages/">Tale of Two Languages</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/02/associations/">Associations</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/17/my-first-post-on-octopress/">My First Post on Octopress</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+ -->
 
     </div>
   </div>
