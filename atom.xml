@@ -4,7 +4,7 @@
   <title><![CDATA[Theory of Coding]]></title>
   <link href="http://minling.github.io/atom.xml" rel="self"/>
   <link href="http://minling.github.io/"/>
-  <updated>2015-07-16T09:17:15-04:00</updated>
+  <updated>2015-07-29T00:59:27-04:00</updated>
   <id>http://minling.github.io/</id>
   <author>
     <name><![CDATA[MinLing Zhao]]></name>
@@ -12,6 +12,95 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Gon Gem]]></title>
+    <link href="http://minling.github.io/blog/2015/07/29/gon-gem/"/>
+    <updated>2015-07-29T00:58:10-04:00</updated>
+    <id>http://minling.github.io/blog/2015/07/29/gon-gem</id>
+    <content type="html"><![CDATA[<h2>Gon Gem</h2>
+
+<p><img src="https://github.com/gazay/gon/raw/master/doc/logo_small.png" alt="gon" /></p>
+
+<p>We&rsquo;ve started project mode this week and it&rsquo;s been pretty cool building our own apps without any tests to pass, and solve real world problems with our application. I&rsquo;ve learned a lot of new things and one of them new gems I learned to make my life easier is the <a href="https://github.com/gazay/gon">Gon Gem!</a></p>
+
+<h3>Why Use Gon?</h3>
+
+<p>Gon is a ruby gem that you can use to send some data to your javascript files without getting it from your views and parsing it. It&rsquo;s quick and easy and will save you a lot of time trying to connect the path from getting it to your javascript file. YOu can renew data in your variables through ajax with gon.watch, and it also supports Jbuilder, Rabl, and Rabl-Rails. You can learn more about Gon by click on the link above.</p>
+
+<h3>How I encountered the problem</h3>
+
+<p>While I was working on our project on using the foursquare API to find the BEST places to eat &ndash; not just random restaurants around you, but venues that people keep going back to, I encountered the problem of parsing jSON from the Geonames API. In my javascript file, I was trying to display the location of your city and zipcode, by using the longitude and latitude of your current location. But before I can even parse it, I have to put in my username for the API and since I didn&rsquo;t want hackers on github to hack my API key, I wanted to put it in the <a href="https://github.com/laserlemon/figaro">figaro</a> file, which loads its values to ENV and puts it in .gitignore. I wanted to access my API key from my ENV and put it to my javascript file, but it was really hard to.</p>
+
+<h3>Initial efforts</h3>
+
+<p>Maybe we can just pull the ENV into a variable! WRONG</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">username</span> <span class="o">=</span> <span class="nx">ENV</span><span class="p">[</span><span class="s1">&#39;geonames_username&#39;</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Maybe we need to interpolate it, this is from a ruby file, afterall. I changed the searches.js file into searches.js.erb so I can write ruby in it. In my file, I tried to set the api key to a variable username. WRONG</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">username</span> <span class="o">=</span> <span class="o">&lt;%=</span> <span class="nx">ENV</span><span class="p">[</span><span class="s1">&#39;geonames_username&#39;</span><span class="p">]</span> <span class="o">%&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then I tried to concatenate it into my API link to parse. WRONG</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">link</span> <span class="o">=</span> <span class="s2">&quot;http://api.geonames.org/findNearestAddressJSON?lat=&quot;</span> <span class="o">+</span> <span class="nx">latitude</span> <span class="o">+</span> <span class="s2">&quot;&amp;lng=&quot;</span> <span class="o">+</span> <span class="nx">longitude</span> <span class="o">+</span> <span class="s2">&quot;&amp;username=&quot;</span> <span class="o">+</span> <span class="nx">username</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Apparently, that still gave me nothing. my var username was just an empty string, which resuilted in a bad API link.</p>
+
+<p>Here is where the Gon Gem came in. One of our instructors, Sophie, recommended this gem, which made it much easier to access data to my javascript file, because I was not able to get data from the ENV. It was pretty simple to set up also.</p>
+
+<h3>With the Gon Gem</h3>
+
+<p>In your Gemfile, you will add the gem</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">gem</span> <span class="s1">&#39;gon&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then you will bundle install to install the gem into your computer. If you haven&rsquo;t already, add the api key to your application.yml from your figaro gem, like you usually would for regular ruby. Make sure it is in single quotes &lsquo;&rsquo; and not double quotes &ldquo; &rdquo;, I made the mistake of using double quotes and it was not taken well when you ask for it in your model when you do ENV[&lsquo;api_key&rsquo;].</p>
+
+<p>To access it in your javascript file, go to the controller where you are trying to use the api key on that page and define it so your js file can grab it from the controller.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">index</span>
+</span><span class='line'>  <span class="vi">@search</span> <span class="o">=</span> <span class="no">Search</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="n">gon</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;geonames_username&#39;</span><span class="o">]</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In your javascript file, you can set the variable username to gon.username</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">username</span> <span class="o">=</span> <span class="nx">gon</span><span class="p">.</span><span class="nx">username</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now this will work and you can continue parsing your data efficiently!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">link</span> <span class="o">=</span> <span class="s2">&quot;http://api.geonames.org/findNearestAddressJSON?lat=&quot;</span> <span class="o">+</span> <span class="nx">latitude</span> <span class="o">+</span> <span class="s2">&quot;&amp;lng=&quot;</span> <span class="o">+</span> <span class="nx">longitude</span> <span class="o">+</span> <span class="s2">&quot;&amp;username=&quot;</span> <span class="o">+</span> <span class="nx">username</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The Gon gem has been useful to me. Although this was a relatively easy problem to fix, there are probably other harder and deeper problems you can use it with that is best suited for this gem. For more information the typical uses and what you can use it with, you can go here!
+<a href="https://github.com/gazay/gon">Gon gem</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Tale of Two Languages]]></title>
@@ -188,7 +277,7 @@
 </table>
 
 
-<p>Methods that does not exist in Javascript:</p>
+<p>Methods that do not exist in Javascript:</p>
 
 <ul>
 <li>include?</li>
@@ -288,7 +377,7 @@
 
 <h2>Classes</h2>
 
-<p>Javascript&rsquo;s equivalent to Ruby&rsquo;s class is called a Prototype. To make a new Prototype, just create a new function with a name with aguments. Note that &ldquo;this&rdquo; in javascript is the same as &ldquo;self&rdquo; in Ruby.</p>
+<p>Javascript&rsquo;s equivalent to Ruby&rsquo;s class is called a Prototype. To make a new Prototype, just create a new function with a name with aguments.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
