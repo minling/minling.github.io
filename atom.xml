@@ -4,7 +4,7 @@
   <title><![CDATA[Theory of Coding]]></title>
   <link href="http://minling.github.io/atom.xml" rel="self"/>
   <link href="http://minling.github.io/"/>
-  <updated>2015-07-16T00:51:47-04:00</updated>
+  <updated>2015-07-16T09:17:15-04:00</updated>
   <id>http://minling.github.io/</id>
   <author>
     <name><![CDATA[MinLing Zhao]]></name>
@@ -22,7 +22,7 @@
 
 <h2>Tale of Two Languages</h2>
 
-<p>Ruby and Javascript are very difference languages in many ways such as their syntax, methods, ways of defining functions. Ruby tends to be shorter and more compact but javascript seems to be more explicit in defining their values such as function(), and var. Both are object oriented programming languages, where they have a class and objects and methods that associates with them are organized in a proper way.</p>
+<p>Ruby and Javascript are very difference languages in many ways such as their syntax, methods, and ways of defining functions. Ruby tends to be shorter and more compact but javascript seems to be more explicit in defining their values such as putting function(), and var in front of the object. Both are object oriented programming languages, where they have a class and objects and methods that associates with them are organized in a proper way.</p>
 
 <h2>Functions</h2>
 
