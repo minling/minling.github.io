@@ -9,7 +9,7 @@
   <meta name="author" content="MinLing Zhao">
 
   
-  <meta name="description" content="Gon Gem We&rsquo;ve started project mode this week and it&rsquo;s been pretty cool building our own apps without any tests to pass, and solve real &hellip;">
+  <meta name="description" content="Amazon S3 with PaperClip with Rails CampusBazaar I&rsquo;m currently working on our second project, CampusBazaar, a rails app that allows students to &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +68,177 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/08/11/amazons3-plus-paperclip/">Amazons3 + Paperclip</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-11T23:39:47-04:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>Amazon S3 with PaperClip with Rails</h2>
+
+<h3>CampusBazaar</h3>
+
+<p>I&rsquo;m currently working on our second project, CampusBazaar, a rails app that allows students to sell their items with their fellow students at their campus. It provides them a way to organize a small shop to sell things that they may not need when moving, or just things in general, such as clothes, mattresses, etc. Upon registration with a .edu email, they are added to their school community.
+Since pictures are much needed for the item listings, the <a href="https://github.com/thoughtbot/paperclip">Paperclip Gem</a> by thoughtbot was used. For installation, just click on the link above.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;paperclip&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Why Amazon S3?</h3>
+
+<p>When we pushed to Heroku, we realized that the pictures from our database did not stay on the site; it eventually turned into a broken link photo within 5 minutes. It was time to host the pictures externally, because heroku&rsquo;s dyno restarts, and the image is lost after that. A more stable way is to upload an image directly from the client side and just save the reference url to the database.</p>
+
+<ol>
+<li>You don&rsquo;t have to use up lots of storage space on your app.</li>
+<li>Pulling images from the rails stack every time will make your app super slow.</li>
+<li>It will disappear from Heroku anyway</li>
+<li><a href="https://aws.amazon.com/s3/">Amazon S3(Simple Storage System)</a> is cheap, it&rsquo;s free for 12 months, or until 5 GB is used, or 20,000 GET or 2,000 PUT Requests.</li>
+<li>After your free tier is over, you can get it for $0.03 per GB for the first 1 TB/month.</li>
+</ol>
+
+
+<p><img src="http://www.oxalto.co.uk/wp-content/uploads/2012/12/amazon.png" alt="Amazon S3" /></p>
+
+<h3>Installation</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;aws-sdk&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Assuming paperclip was already properly set up, bundle install the &lsquo;aws-sdk&rsquo; gem now.</p>
+
+<p>First, get an Amazon S3 account and create a :bucket for your app.
+You will also need your Amazon Access Key and the Amazon Secret key.</p>
+
+<p>I saved my keys in my application.yml file. This file will not be pushed to github, so don&rsquo;t worry about people stealing your keys. You must set up the <a href="https://github.com/laserlemon/figaro">figaro gem</a> to use this feature. Remember to put your key in single quotes &lsquo; &rsquo;, and not double quotes &ldquo; &rdquo;.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># config/application.yml</span>
+</span><span class='line'>  <span class="ss">amazon_access_key</span><span class="p">:</span> <span class="s1">&#39;INSERT YOUR KEY HERE&#39;</span>
+</span><span class='line'>  <span class="ss">amazon_secret</span><span class="p">:</span> <span class="s1">&#39;INSERT YOUR KEY HERE&#39;</span>
+</span><span class='line'>  <span class="ss">amazon_bucket_name</span><span class="p">:</span> <span class="s1">&#39;INSERT YOUR BUCKET NAME HERE&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>From then on, I encountered some problems. I searched around google to find out how to set up Amazon S3 with paperclip, and every post seems to have a different answer. There were two posts that were helpful, but did not work for me. It was possible that since my keys were stored in my application.yml file that was not uploaded, it was not able to access my keys. You can try these posts, <a href="https://github.com/thoughtbot/paperclip/wiki/Paperclip-with-Amazon-S3">thoughtbot</a> or <a href="https://devcenter.heroku.com/articles/paperclip-s3">devcenter.heroku</a> to see if they work for you. If not, you can follow my tutorial below.</p>
+
+<p>In my config/environments/production.rb, I put the code below. As a reminder, you can get your keys from your application.yml file by using calling ENV[&lsquo;whatever you named your key&rsquo;].
+ex. ENV[&lsquo;amazon_secret&rsquo;]</p>
+
+<p>We&rsquo;re specifying the AWS configuration variables so that we can use it when your app is in production when its up on heroku.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># config/environemnts/production.rb</span>
+</span><span class='line'><span class="n">config</span><span class="o">.</span><span class="n">paperclip_defaults</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="ss">:storage</span> <span class="o">=&gt;</span> <span class="ss">:s3</span><span class="p">,</span>
+</span><span class='line'>  <span class="ss">:s3_credentials</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>    <span class="ss">:bucket</span> <span class="o">=&gt;</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;amazon_bucket_name&#39;</span><span class="o">]</span><span class="p">,</span>
+</span><span class='line'>    <span class="ss">:access_key_id</span> <span class="o">=&gt;</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;amazon_access_keys&#39;</span><span class="o">]</span><span class="p">,</span>
+</span><span class='line'>    <span class="ss">:secret_access_key</span> <span class="o">=&gt;</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;amazon_secret&#39;</span><span class="o">]</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then, I put my paperclip config in the development.rb so that I can test it out during development in my localhost:3000</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># config/environments/development.rb</span>
+</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">paperclip_defaults</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="ss">:storage</span> <span class="o">=&gt;</span> <span class="ss">:s3</span><span class="p">,</span>
+</span><span class='line'>  <span class="c1">#:s3_host_name =&gt; &#39;REMOVE_THIS_LINE_IF_YOURE_IN_THE_US&#39;,</span>
+</span><span class='line'>  <span class="ss">:s3_credentials</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>    <span class="ss">:bucket</span> <span class="o">=&gt;</span> <span class="s1">&#39;YOUR BUCKET NAME&#39;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then, create a aws.yml file in your config directory, if it was not automatically loaded by aws-sdk. You can put different keys in here if you want to</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># config/aws.yml</span>
+</span><span class='line'><span class="ss">development</span><span class="p">:</span>
+</span><span class='line'>  <span class="ss">access_key_id</span><span class="p">:</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;amazon_access_key&#39;</span><span class="o">]</span>
+</span><span class='line'>  <span class="ss">secret_access_key</span><span class="p">:</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;amazon_secret&#39;</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="ss">production</span><span class="p">:</span>
+</span><span class='line'>  <span class="ss">access_key_id</span><span class="p">:</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;amazon_access_key&#39;</span><span class="o">]</span>
+</span><span class='line'>  <span class="ss">secret_access_key</span><span class="p">:</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;amazon_secret&#39;</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will be pushed to github, so don&rsquo;t try to just write your keys here. People will be able to steal your keys. Don&rsquo;t try to put this in your .gitignore file either, this is essential for the Amazon S3 to work. Just use ENV to grab your keys from your application.yml file.</p>
+
+<p>Lastly, you must add your AWS configuration variables onto heroku in your settings, or you can do it through the command line. Just remember to call the keys the same way you called it in your app. Once you push to heroku master, everything should work.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="err">$</span> <span class="n">heroku</span> <span class="ss">config</span><span class="p">:</span><span class="n">set</span> <span class="n">amazon_bucket_name</span><span class="o">=</span><span class="n">your_bucket_name</span>
+</span><span class='line'><span class="err">$</span> <span class="n">heroku</span> <span class="ss">config</span><span class="p">:</span><span class="n">set</span> <span class="n">amazon_access_key</span><span class="o">=</span><span class="n">your_access_key_id</span>
+</span><span class='line'><span class="err">$</span> <span class="n">heroku</span> <span class="ss">config</span><span class="p">:</span><span class="n">set</span> <span class="n">amazon_secret</span><span class="o">=</span><span class="n">your_secret_access_key</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To check whether or not it was successful, on your localhost, do inspect element on your uploaded photo, and see if the url is an amazon url. Then, in production on heroku, also check to see if the url is an amazon url. If it is, then congratulations, you have successfully set up Amazon S3. Happy uploading.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1004,6 +1175,10 @@ Kitty: &ldquo;Smells like a good method.&rdquo;</p>
       <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/08/11/amazons3-plus-paperclip/">Amazons3 + Paperclip</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2015/07/29/gon-gem/">Gon Gem</a>
