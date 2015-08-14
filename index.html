@@ -9,7 +9,7 @@
   <meta name="author" content="MinLing Zhao">
 
   
-  <meta name="description" content="Amazon S3 with PaperClip with Rails CampusBazaar I&rsquo;m currently working on our second project, CampusBazaar, a rails app that allows students to &hellip;">
+  <meta name="description" content="Building a Messaging System After trying to deploy to heroku with an in-app messaging system with the mailboxer gem, the messaging system seemed to &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +68,374 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/08/14/in-app-messaging/">In-App Messaging</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-14T00:16:32-04:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>Building a Messaging System</h2>
+
+<p>After trying to deploy to heroku with an in-app messaging system with the mailboxer gem, the messaging system seemed to be broken. After trying to fixing it for 4 hours, with a lack of documentation on it on the internet, I decided to build my own messaging app from scratch.</p>
+
+<p>This messaging system was built for my project, CampusBazaar, which allows users to message sellers about items to ask questions or to pick places to meet up on campus. Just thinking about how to organize the app was the most difficult part of the app. Knowing how the messaging app is associated with other parts of the app is important.</p>
+
+<p>For my purpose, I wanted a messaging system that knows about the item that the sender is inquiring about. Any time someone inquires about an item, a new conversation is started between the two users. If the user inquires about another item from the same user, there will be a separate conversation, because it solely based on the item.</p>
+
+<p>Basically, this is what should happen
+You will click on Contact seller button on the item show page
+<img src="http://i.imgur.com/vMkdyCR.png" alt="Imgur" /></p>
+
+<p>Then, a new conversation will be started between you two. This means the message form will be nested inside the conversation form
+<img src="http://i.imgur.com/2MWFoF5.png" alt="Imgur" /></p>
+
+<p>Lastly, this will be the messaging app containing all your conversations, and you can see all the messages that belong to that particular conversation.
+<img src="http://i.imgur.com/RecSBAJ.png" alt="Imgur" /></p>
+
+<p>To start, we should make a migration for conversations. Essentially, there will be a conversation between two users, and it is connected to an item. This is basically a join table.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">CreateConversation</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Migration</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">change</span>
+</span><span class='line'>    <span class="n">create_table</span> <span class="ss">:conversations</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">integer</span> <span class="ss">:user1_id</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">integer</span> <span class="ss">:user2_id</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">integer</span> <span class="ss">:item_id</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">timestamps</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here, we have the messages migration. There will be a sender_id and recipient_id and not a user1_id and a user2_id like in the conversation migration because it matters who is the sender or not, whereas in the conversation migration, it is just two people talking to each other, regardless of who sent the message first, or who is the sender or recipient. Each messsage will belong to a conversation, hence the conversation_id.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">CreateMessage</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Migration</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">change</span>
+</span><span class='line'>    <span class="n">create_table</span> <span class="ss">:messages</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">integer</span> <span class="ss">:sender_id</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">integer</span> <span class="ss">:recipient_id</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">integer</span> <span class="ss">:conversation_id</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">text</span> <span class="ss">:content</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">boolean</span> <span class="ss">:read</span><span class="p">,</span> <span class="ss">:default</span> <span class="o">=&gt;</span> <span class="kp">false</span>
+</span><span class='line'>      <span class="n">t</span><span class="o">.</span><span class="n">timestamps</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now for the associations. This is the conversation model. It will belong to a item, the users that are talking to each other, and has many messages. It belongs to a user with a foreign key of class name &lsquo;User&rsquo; so that we can do ask the console about the user of that conversation when doing Conversation.user1</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Conversation</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:item</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:user1</span><span class="p">,</span> <span class="ss">:foreign_key</span> <span class="o">=&gt;</span> <span class="ss">:user1_id</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s1">&#39;User&#39;</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:user2</span><span class="p">,</span><span class="ss">:foreign_key</span> <span class="o">=&gt;</span> <span class="ss">:user2_id</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s1">&#39;User&#39;</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:messages</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">#self is the conversation itself, from the message form @conversation</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">recipient</span><span class="p">(</span><span class="n">current_user</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">current_user</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="nb">self</span><span class="o">.</span><span class="n">user1_id</span><span class="p">)</span>
+</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">user2_id</span>
+</span><span class='line'>    <span class="k">else</span> <span class="p">(</span><span class="n">current_user</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="nb">self</span><span class="o">.</span><span class="n">user2_id</span><span class="p">)</span>
+</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">user1_id</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This isthe messsage associations. It will belong to a conversation, also belong to a recipient and sender, associating that with the User class like in the Conversation model with foreign keys. The message will also belong to a sender. There will be many people inquiring about an item, but there will only be one buyer, who is actually going to buy the item.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Message</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:conversation</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:recipient</span><span class="p">,</span> <span class="ss">:foreign_key</span> <span class="o">=&gt;</span> <span class="ss">:recipient_id</span><span class="p">,</span><span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s1">&#39;User&#39;</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:sender</span><span class="p">,</span> <span class="ss">:foreign_key</span> <span class="o">=&gt;</span> <span class="ss">:sender_id</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s1">&#39;User&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Remember that if you have a belongs_to association, the counterpart will have a has_many associtation. A user will have many items and conversations as user1 or user2.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:community</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:items</span><span class="p">,</span> <span class="ss">:foreign_key</span> <span class="o">=&gt;</span> <span class="s1">&#39;seller_id&#39;</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:offers_sent</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Offer&quot;</span><span class="p">,</span> <span class="ss">:foreign_key</span> <span class="o">=&gt;</span> <span class="s1">&#39;buyer_id&#39;</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:conversations</span><span class="p">,</span> <span class="ss">:foreign_key</span> <span class="o">=&gt;</span> <span class="s1">&#39;user1_id&#39;</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:conversations</span><span class="p">,</span> <span class="ss">:foreign_key</span> <span class="o">=&gt;</span> <span class="s1">&#39;user2_id&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, the item will have many conversations, because the conversation also belongs to an item. There will be many inquiries from potential buyers but there will just be one buyer.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Item</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="kp">attr_accessor</span> <span class="ss">:delete_product</span><span class="p">,</span> <span class="ss">:delete_avatar</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:seller</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s1">&#39;User&#39;</span>
+</span><span class='line'>  <span class="n">delegate</span> <span class="ss">:community</span><span class="p">,</span> <span class="ss">to</span><span class="p">:</span> <span class="ss">:seller</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:item_categories</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:categories</span><span class="p">,</span> <span class="ss">through</span><span class="p">:</span> <span class="ss">:item_categories</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:offers</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:conversations</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&rsquo;s not forget about our routes. There will be messages nested under routes, but only the GET request of index and POST of create will be needed because we will show all the messages for that particular conversation, and we need to create new messages. There will be no need of other routes such as the Show method because we will not be showing each individual message.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="n">resources</span> <span class="ss">:conversations</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">resources</span> <span class="ss">:messages</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="o">[</span><span class="ss">:index</span><span class="p">,</span> <span class="ss">:create</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, understanding that we will click Contact Seller from the items page, it will do a GET request to go to the new_conversation_path to see the form to create a new conversation. We will nest the message form inside the conversation form because upon creation of a conversation, there should be a message.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ConversationsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">index</span>
+</span><span class='line'>    <span class="vi">@users</span> <span class="o">=</span> <span class="no">User</span><span class="o">.</span><span class="n">all</span>
+</span><span class='line'>    <span class="vi">@conversations</span> <span class="o">=</span> <span class="no">Conversation</span><span class="o">.</span><span class="n">all</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="vi">@conversation</span> <span class="o">=</span> <span class="no">Conversation</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">conversation_params</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@conversation</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>    <span class="vi">@message</span> <span class="o">=</span> <span class="no">Message</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="vi">@message</span><span class="o">.</span><span class="n">conversation_id</span> <span class="o">=</span> <span class="vi">@conversation</span><span class="o">.</span><span class="n">id</span>
+</span><span class='line'>    <span class="vi">@message</span><span class="o">.</span><span class="n">recipient_id</span> <span class="o">=</span> <span class="vi">@conversation</span><span class="o">.</span><span class="n">user2_id</span>
+</span><span class='line'>    <span class="vi">@message</span><span class="o">.</span><span class="n">sender_id</span> <span class="o">=</span> <span class="vi">@conversation</span><span class="o">.</span><span class="n">user1_id</span>
+</span><span class='line'>    <span class="vi">@message</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">params</span><span class="o">[</span><span class="ss">:conversation</span><span class="o">][</span><span class="ss">:messages</span><span class="o">][</span><span class="ss">:content</span><span class="o">]</span>
+</span><span class='line'>    <span class="vi">@message</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>    <span class="n">redirect_to</span> <span class="n">conversations_path</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">new</span>
+</span><span class='line'>    <span class="c1">#binding.pry</span>
+</span><span class='line'>    <span class="vi">@item</span> <span class="o">=</span> <span class="no">Item</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:item_id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="kp">private</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">conversation_params</span>
+</span><span class='line'>    <span class="n">params</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="ss">:conversation</span><span class="p">)</span><span class="o">.</span><span class="n">permit</span><span class="p">(</span><span class="ss">:user1_id</span><span class="p">,</span> <span class="ss">:user2_id</span><span class="p">,</span> <span class="ss">:item_id</span><span class="p">,</span> <span class="ss">:content</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is the form. I added hidden fields to pass into private params in th controller. Once the form is submitted, it will send a POST request to the server and do its thing at the def create in the Conversation Controller. The params will be set in the new instance Conversation and saved, and a new message will also be created with all the passed in information.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&lt;</span><span class="sx">%= form_for Conversation.new do |f| %&gt;</span>
+</span><span class='line'><span class="sx">  Seller: &lt;%=</span> <span class="vi">@item</span><span class="o">.</span><span class="n">seller</span><span class="o">.</span><span class="n">name</span><span class="sx">%&gt;&lt;br&gt;</span>
+</span><span class='line'>  <span class="ss">Buyer</span><span class="p">:</span> <span class="o">&lt;</span><span class="sx">%= current_user.name %&gt;&lt;br&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sx">  Message for item: &lt;%=</span> <span class="vi">@item</span><span class="o">.</span><span class="n">name</span> <span class="sx">%&gt;&lt;br /&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">&lt;</span><span class="sx">%= f.hidden_field :item_id, :value =</span><span class="o">&gt;</span> <span class="vi">@item</span><span class="o">.</span><span class="n">id</span><span class="sx">%&gt;</span>
+</span><span class='line'><span class="sx">  &lt;%= f.hidden_field :user2_id, :value =&gt;</span> <span class="vi">@item</span><span class="o">.</span><span class="n">seller</span><span class="o">.</span><span class="n">id</span><span class="sx">%&gt;</span>
+</span><span class='line'><span class="sx">  &lt;%= f.hidden_field :user1_id, :value =&gt;</span> <span class="n">current_user</span><span class="o">.</span><span class="n">id</span><span class="sx">%&gt;</span>
+</span><span class='line'><span class="sx">#this is the nested form</span>
+</span><span class='line'><span class="sx">  &lt;%= f.fields_for :messages do |message_form| %&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="sx">%= message_form.label :content %&gt;</span>
+</span><span class='line'><span class="sx">  &lt;%=</span> <span class="n">message_form</span><span class="o">.</span><span class="n">text_area</span> <span class="ss">:content</span><span class="p">,</span> <span class="ss">:rows</span> <span class="o">=&gt;</span> <span class="s2">&quot;5&quot;</span><span class="p">,</span> <span class="ss">placeholder</span><span class="p">:</span> <span class="s1">&#39;Write your message here&#39;</span><span class="sx">%&gt;&lt;br /&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="sx">% end %&gt;</span>
+</span><span class='line'><span class="sx">  &lt;%= f.submit &#39;Send Message&#39; %&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sx">% end </span><span class="o">%&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once that conversation is created, it will redirect to the def index, to see all their conversations they ever had. If they clicked on a conversation, it will basically send a GET request to the Messages Controller to give back the index page of the messages pertaining to that conversation, given that the id of the conversation is passed in.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">MessagesController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">index</span>
+</span><span class='line'>    <span class="vi">@conversation</span> <span class="o">=</span> <span class="no">Conversation</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:conversation_id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@recipient</span> <span class="o">=</span> <span class="vi">@conversation</span><span class="o">.</span><span class="n">recipient</span><span class="p">(</span><span class="n">current_user</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@messages</span> <span class="o">=</span> <span class="vi">@conversation</span><span class="o">.</span><span class="n">messages</span>
+</span><span class='line'>    <span class="n">respond_to</span> <span class="k">do</span> <span class="o">|</span><span class="nb">format</span><span class="o">|</span>
+</span><span class='line'>        <span class="nb">format</span><span class="o">.</span><span class="n">html</span> <span class="p">{}</span>
+</span><span class='line'>        <span class="nb">format</span><span class="o">.</span><span class="n">js</span> <span class="p">{}</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="vi">@message</span> <span class="o">=</span> <span class="no">Message</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">message_params</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@message</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>    <span class="n">redirect_to</span> <span class="n">conversation_messages_path</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="kp">private</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">message_params</span>
+</span><span class='line'>    <span class="n">params</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="ss">:message</span><span class="p">)</span><span class="o">.</span><span class="n">permit</span><span class="p">(</span><span class="ss">:conversation_id</span><span class="p">,</span> <span class="ss">:recipient_id</span><span class="p">,</span> <span class="ss">:sender_id</span><span class="p">,</span> <span class="ss">:content</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Where it&rsquo;s actually going is /conversations/:id/messages, so params will have the id of the conversation. Javascript was used to render the partials so that when you click on the conversation, it will allow ajax to render the messages, without the page ever refreshing.</p>
+
+<p><img src="http://i.imgur.com/RecSBAJ.png" alt="Imgur" /></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1177,6 +1545,10 @@ Kitty: &ldquo;Smells like a good method.&rdquo;</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/08/14/in-app-messaging/">In-App Messaging</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/08/11/amazons3-plus-paperclip/">Amazons3 + Paperclip</a>
       </li>
     
@@ -1190,10 +1562,6 @@ Kitty: &ldquo;Smells like a good method.&rdquo;</p>
     
       <li class="post">
         <a href="/blog/2015/07/02/associations/">Associations</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/06/17/my-first-post-on-octopress/">My First Post on Octopress</a>
       </li>
     
   </ul>
