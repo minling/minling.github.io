@@ -9,7 +9,7 @@
   <meta name="author" content="MinLing Zhao">
 
   
-  <meta name="description" content="Building a Messaging System After trying to deploy to heroku with an in-app messaging system with the mailboxer gem, the messaging system seemed to &hellip;">
+  <meta name="description" content="Refactoring Code Why refactor? After spending hours writing this piece of code, why would you want to go back to spend more time on refactoring it? &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +68,370 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/08/28/refactoring/">Refactoring</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-28T01:52:14-04:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>Refactoring Code</h2>
+
+<p><strong>Why refactor?</strong></p>
+
+<p>After spending hours writing this piece of code, why would you want to go back to spend more time on refactoring it? It already works! Dealing with the big chunk of code you just wrote seems daunting and tiresome, but it is necessary for adding new features without making huge changes to existing code. Also, it is just easier to read and easier to go back to when you read it again in the future. Depending on what you wrote, there are millions of ways to refactor, but this post just shows what I did to refactor my 28 line method into 12 lines of code. You can check out Sandi Metz&rsquo;s video <a href="https://www.youtube.com/watch?v=8bZh5LMaSmE">&lsquo;All the litting things&rsquo;</a> to get better at refactoring.</p>
+
+<p><strong>Make it go green first</strong></p>
+
+<p>Before refactoring, you must have the code working first. No matter how messy and ugly your code is, just make it work. Make the test pass green!</p>
+
+<p>Here is some code I wrote for the Green Grocer lab, where the apply_coupons method take in a cart and coupon hash argument, and applying the coupon on the cart items if applicable. It should return a hash of the items with the correct quantity, and the &ldquo;item name W/COUPON&rdquo; with the discount.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">apply_coupons</span><span class="p">(</span><span class="ss">cart</span><span class="p">:</span><span class="o">[]</span><span class="p">,</span> <span class="ss">coupons</span><span class="p">:</span><span class="o">[]</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">apply_coupons_hash</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'>      <span class="n">coupon_items</span> <span class="o">=</span> <span class="o">[]</span> <span class="c1"># get coupon item names</span>
+</span><span class='line'>        <span class="n">coupons</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+</span><span class='line'>          <span class="n">coupon_items</span> <span class="o">&lt;&lt;</span> <span class="n">item</span><span class="o">[</span><span class="ss">:item</span><span class="o">]</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>    <span class="n">cart</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+</span><span class='line'>      <span class="nb">name</span> <span class="o">=</span> <span class="n">item</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">attributes</span> <span class="o">=</span> <span class="n">item</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">num_of_coupon</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>      <span class="n">coupon_price</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>      <span class="n">coupons</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">coupon_hash</span><span class="o">|</span> <span class="c1">#get num and cost of that particular item from coupons hash</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">coupon_hash</span><span class="o">[</span><span class="ss">:item</span><span class="o">]</span> <span class="o">==</span> <span class="nb">name</span>
+</span><span class='line'>          <span class="n">num_of_coupon</span> <span class="o">=</span> <span class="n">coupon_hash</span><span class="o">[</span><span class="ss">:num</span><span class="o">]</span>
+</span><span class='line'>          <span class="n">coupon_price</span> <span class="o">=</span> <span class="n">coupon_hash</span><span class="o">[</span><span class="ss">:cost</span><span class="o">]</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="n">num_of_coupon</span> <span class="c1">#quantity of item required for coupon to work</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">((</span><span class="n">coupon_items</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="nb">name</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">attributes</span><span class="o">[</span><span class="ss">:count</span><span class="o">]</span> <span class="o">&gt;=</span> <span class="n">num_of_coupon</span><span class="p">))</span>
+</span><span class='line'>      <span class="c1">#for the current item, if the count is &gt;= coupon quantity requirement</span>
+</span><span class='line'>      <span class="c1">#decrease the item count and add the coupon hash </span>
+</span><span class='line'>      <span class="n">quantity</span> <span class="o">=</span> <span class="p">(</span><span class="n">attributes</span><span class="o">[</span><span class="ss">:count</span><span class="o">]</span> <span class="o">/</span> <span class="n">num_of_coupon</span><span class="p">)</span> <span class="c1">#item quantity/coupon quantity</span>
+</span><span class='line'>        <span class="n">apply_coupons_hash</span><span class="o">[</span><span class="nb">name</span><span class="o">]</span> <span class="o">=</span> <span class="p">{</span><span class="ss">:price</span> <span class="o">=&gt;</span> <span class="n">attributes</span><span class="o">[</span><span class="ss">:price</span><span class="o">]</span><span class="p">,</span> <span class="ss">:clearance</span> <span class="o">=&gt;</span> <span class="n">attributes</span><span class="o">[</span><span class="ss">:clearance</span><span class="o">]</span><span class="p">,</span> <span class="ss">:count</span> <span class="o">=&gt;</span><span class="p">(</span><span class="n">attributes</span><span class="o">[</span><span class="ss">:count</span><span class="o">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">num_of_coupon</span> <span class="o">*</span> <span class="n">quantity</span><span class="p">))}</span>
+</span><span class='line'>        <span class="n">apply_coupons_hash</span><span class="o">[</span><span class="nb">name</span> <span class="o">+</span> <span class="s1">&#39; W/COUPON&#39;</span><span class="o">]</span> <span class="o">=</span> <span class="p">{</span><span class="ss">:price</span> <span class="o">=&gt;</span> <span class="n">coupon_price</span><span class="p">,</span> <span class="ss">:clearance</span> <span class="o">=&gt;</span> <span class="n">attributes</span><span class="o">[</span><span class="ss">:clearance</span><span class="o">]</span><span class="p">,</span> <span class="ss">:count</span> <span class="o">=&gt;</span> <span class="n">quantity</span><span class="p">}</span>
+</span><span class='line'>      <span class="k">else</span> <span class="c1">#if no coupon for this item, then just add the existing item hash to apply_coupons_hash</span>
+</span><span class='line'>        <span class="n">apply_coupons_hash</span><span class="o">[</span><span class="nb">name</span><span class="o">]</span> <span class="o">=</span> <span class="p">{</span><span class="ss">:price</span> <span class="o">=&gt;</span> <span class="n">attributes</span><span class="o">[</span><span class="ss">:price</span><span class="o">]</span><span class="p">,</span> <span class="ss">:clearance</span> <span class="o">=&gt;</span> <span class="n">attributes</span><span class="o">[</span><span class="ss">:clearance</span><span class="o">]</span><span class="p">,</span> <span class="ss">:count</span> <span class="o">=&gt;</span> <span class="n">attributes</span><span class="o">[</span><span class="ss">:count</span><span class="o">]</span><span class="p">}</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">apply_coupons_hash</span>
+</span><span class='line'> <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This monstrous piece of code is 28 lines long&hellip;
+No way am I going to remember what each part does a week later.</p>
+
+<p>Here is my refactored version of the code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">apply_coupons</span><span class="p">(</span><span class="ss">cart</span><span class="p">:</span><span class="o">[]</span><span class="p">,</span> <span class="ss">coupons</span><span class="p">:</span><span class="o">[]</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">apply_coupons_hash</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'>    <span class="n">cart</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">item_hash</span> <span class="o">=</span> <span class="n">build_item_hash</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">matching_coupon_for_item</span> <span class="o">=</span> <span class="n">coupons</span><span class="o">.</span><span class="n">detect</span> <span class="p">{</span><span class="o">|</span><span class="n">coupon</span><span class="o">|</span> <span class="n">coupon</span><span class="o">[</span><span class="ss">:item</span><span class="o">]</span> <span class="o">==</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:name</span><span class="o">]</span><span class="p">}</span>
+</span><span class='line'>      <span class="k">if</span> <span class="n">matching_coupon_for_item</span> <span class="o">&amp;&amp;</span> <span class="n">can_apply_coupon?</span><span class="p">(</span><span class="n">item_hash</span><span class="p">,</span> <span class="n">matching_coupon_for_item</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">quantity</span> <span class="o">=</span> <span class="p">(</span><span class="n">item_hash</span><span class="o">[</span><span class="ss">:count</span><span class="o">]</span> <span class="o">/</span> <span class="n">matching_coupon_for_item</span><span class="o">[</span><span class="ss">:num</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">apply_coupons_hash</span><span class="o">[</span><span class="n">item_hash</span><span class="o">[</span><span class="ss">:name</span><span class="o">]]</span> <span class="o">=</span> <span class="p">{</span><span class="ss">:price</span> <span class="o">=&gt;</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:price</span><span class="o">]</span><span class="p">,</span> <span class="ss">:clearance</span> <span class="o">=&gt;</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:clearance</span><span class="o">]</span><span class="p">,</span> <span class="ss">:count</span> <span class="o">=&gt;</span><span class="p">(</span><span class="n">item_hash</span><span class="o">[</span><span class="ss">:count</span><span class="o">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">matching_coupon_for_item</span><span class="o">[</span><span class="ss">:num</span><span class="o">]</span> <span class="o">*</span> <span class="n">quantity</span><span class="p">))}</span>
+</span><span class='line'>        <span class="n">apply_coupons_hash</span><span class="o">[</span><span class="n">item_hash</span><span class="o">[</span><span class="ss">:name</span><span class="o">]</span> <span class="o">+</span> <span class="s1">&#39; W/COUPON&#39;</span><span class="o">]</span> <span class="o">=</span> <span class="p">{</span><span class="ss">:price</span> <span class="o">=&gt;</span> <span class="n">matching_coupon_for_item</span><span class="o">[</span><span class="ss">:cost</span><span class="o">]</span><span class="p">,</span> <span class="ss">:clearance</span> <span class="o">=&gt;</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:clearance</span><span class="o">]</span><span class="p">,</span> <span class="ss">:count</span> <span class="o">=&gt;</span> <span class="n">quantity</span><span class="p">}</span>
+</span><span class='line'>      <span class="k">else</span>
+</span><span class='line'>        <span class="n">apply_coupons_hash</span><span class="o">[</span><span class="n">item_hash</span><span class="o">[</span><span class="ss">:name</span><span class="o">]]</span> <span class="o">=</span> <span class="p">{</span><span class="ss">:price</span> <span class="o">=&gt;</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:price</span><span class="o">]</span><span class="p">,</span> <span class="ss">:clearance</span> <span class="o">=&gt;</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:clearance</span><span class="o">]</span><span class="p">,</span> <span class="ss">:count</span> <span class="o">=&gt;</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:count</span><span class="o">]</span><span class="p">}</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">apply_coupons_hash</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It&rsquo;s only 12 lines long compared to my 28 line code before!! There is hope.</p>
+
+<p><strong>Change data structure to fit your needs</strong></p>
+
+<p>I can totally get rid of these line of code if I had the data structure I wanted.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">cart</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+</span><span class='line'>      <span class="nb">name</span> <span class="o">=</span> <span class="n">item</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">attributes</span> <span class="o">=</span> <span class="n">item</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>      <span class="n">num_of_coupon</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>      <span class="n">coupon_price</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>      <span class="n">coupons</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">coupon_hash</span><span class="o">|</span> <span class="c1">#get num and cost of that </span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The reason why I set variables for those things, was because the current array I&rsquo;m getting from |item| is this</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="s2">&quot;AVOCADO&quot;</span><span class="p">,</span> <span class="p">{</span><span class="ss">:price</span> <span class="o">=&gt;</span> <span class="mi">3</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="ss">:clearance</span> <span class="o">=&gt;</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">:count</span> <span class="o">=&gt;</span> <span class="mi">2</span><span class="p">}</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I had to do item[0] to get the name of the item, and etc,. All I wanted to do here was to get the information from the item so I can use it later in my if statement. These 4 lines of code can be replaced into 1 if I had the data structure to simply say something like item_hash[:name] to JUST get the name.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">cart</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">item_hash</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'>  <span class="n">item_hash</span><span class="o">[</span><span class="ss">:name</span><span class="o">]</span> <span class="o">=</span> <span class="n">item_array</span><span class="o">.</span><span class="n">first</span>
+</span><span class='line'>  <span class="n">item_hash</span><span class="o">.</span><span class="n">merge!</span><span class="p">(</span><span class="n">item_array</span><span class="o">.</span><span class="n">last</span><span class="p">)</span>
+</span><span class='line'>  <span class="c1">#this is the return value</span>
+</span><span class='line'>  <span class="c1">#=&gt; {:name=&gt;&quot;AVOCADO&quot;, :price=&gt;3.0, :clearance=&gt;true, :count=&gt;2}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>Don&rsquo;t be afraid to make new methods</strong></p>
+
+<p>Knowing the single responsibility rule, getting the item hash seems like it should be it&rsquo;s own method. Rebuilding the datastructure is for our own ease, and has nothing to do with apply_coupons. Don&rsquo;t worry about adding more methods and adding more lines of code. This is usually the result of refactoring; abstracting parts away into their own methods make them reusable and clear to the reader what this function is doing.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">build_item_hash</span><span class="p">(</span><span class="n">item_array</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">item_hash</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'>  <span class="n">item_hash</span><span class="o">[</span><span class="ss">:name</span><span class="o">]</span> <span class="o">=</span> <span class="n">item_array</span><span class="o">.</span><span class="n">first</span>
+</span><span class='line'>  <span class="n">item_hash</span><span class="o">.</span><span class="n">merge!</span><span class="p">(</span><span class="n">item_array</span><span class="o">.</span><span class="n">last</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now that we dumped that into it&rsquo;s own method, our cart.each do looks a litle bit better.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">cart</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">item_hash</span> <span class="o">=</span> <span class="n">build_item_hash</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, I tried to iterate over coupons to grab the coupon that matches the current item name, so that I can check if items in the cart meet the coupon requirement.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">coupons</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">coupon_hash</span><span class="o">|</span> <span class="c1">#get num and cost of that particular item from coupons hash</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">coupon_hash</span><span class="o">[</span><span class="ss">:item</span><span class="o">]</span> <span class="o">==</span> <span class="nb">name</span>
+</span><span class='line'>          <span class="n">num_of_coupon</span> <span class="o">=</span> <span class="n">coupon_hash</span><span class="o">[</span><span class="ss">:num</span><span class="o">]</span>
+</span><span class='line'>          <span class="n">coupon_price</span> <span class="o">=</span> <span class="n">coupon_hash</span><span class="o">[</span><span class="ss">:cost</span><span class="o">]</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="n">num_of_coupon</span> <span class="c1">#quantity of item required for coupon to work</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">((</span><span class="n">coupon_items</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="nb">name</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">attributes</span><span class="o">[</span><span class="ss">:count</span><span class="o">]</span> <span class="o">&gt;=</span> <span class="n">num_of_coupon</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>Look for specialized methods to do the job</strong></p>
+
+<p>Sure, you can use the broad .each method on anything, but there are many methods out there that you can use that will make your life easier. Here is a list of <a href="http://overapi.com/ruby/">ruby methods</a> for reference! You can see methods you can use for arrays, strings, etc,.</p>
+
+<p>Instead of iterating through the coupons to check if the item name matched with the coupon name, and then returning the quantity requirement (num) for the coupon, I can just approach this differently and just use a more specialized method, &lsquo;detect&rsquo; to see if the coupon exists for this item.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">matching_coupon_for_item</span> <span class="o">=</span> <span class="n">coupons</span><span class="o">.</span><span class="n">detect</span> <span class="p">{</span><span class="o">|</span><span class="n">coupon</span><span class="o">|</span> <span class="n">coupon</span><span class="o">[</span><span class="ss">:item</span><span class="o">]</span> <span class="o">==</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:name</span><span class="o">]</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Those 6 lines just turned into a 1 liner, after using .detect instead of .each</p>
+
+<p><strong>Writing methods I wish I had</strong></p>
+
+<p>Sometimes if you don&rsquo;t know what to write, you can start by writing a method that you wish you had, and then try to make the method!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">if</span> <span class="p">((</span><span class="n">coupon_items</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="nb">name</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">attributes</span><span class="o">[</span><span class="ss">:count</span><span class="o">]</span> <span class="o">&gt;=</span> <span class="n">num_of_coupon</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, after of the refactoring I did above, I finally get to my if statement to see if there is a coupon that matches the current item, AND see if the quantity requirement of the coupon was met by the item count. If someone was reading this, they&rsquo;d have to find out what attributes is , and what num of coupon means also. Wouldn&rsquo;t it be nice to just write &ldquo;can apply coupon?&rdquo; ?</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">can_apply_coupon?</span><span class="p">(</span><span class="n">item_hash</span><span class="p">,</span> <span class="n">matching_coupon_for_item</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">(</span><span class="n">item_hash</span><span class="o">[</span><span class="ss">:count</span><span class="o">]</span> <span class="o">&gt;=</span> <span class="n">matching_coupon_for_item</span><span class="o">[</span><span class="ss">:num</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I made this into a new method. Although it did not decrease my lines of code, it did make it clear what I was trying to do in my if statement.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">if</span> <span class="n">matching_coupon_for_item</span> <span class="o">&amp;&amp;</span> <span class="n">can_apply_coupon?</span><span class="p">(</span><span class="n">item_hash</span><span class="p">,</span> <span class="n">matching_coupon_for_item</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, I can proceed to do what I wanted to do all along, for this one apply coupons method. For the refactored version, you can see the resulting method goes straight into just applying the coupons to the cart and returning the new hash if there was a coupon that exists and if the requirement is met.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">apply_coupons</span><span class="p">(</span><span class="ss">cart</span><span class="p">:</span><span class="o">[]</span><span class="p">,</span> <span class="ss">coupons</span><span class="p">:</span><span class="o">[]</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">apply_coupons_hash</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class='line'>    <span class="n">cart</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+</span><span class='line'>      <span class="n">item_hash</span> <span class="o">=</span> <span class="n">build_item_hash</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">matching_coupon_for_item</span> <span class="o">=</span> <span class="n">coupons</span><span class="o">.</span><span class="n">detect</span> <span class="p">{</span><span class="o">|</span><span class="n">coupon</span><span class="o">|</span> <span class="n">coupon</span><span class="o">[</span><span class="ss">:item</span><span class="o">]</span> <span class="o">==</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:name</span><span class="o">]</span><span class="p">}</span>
+</span><span class='line'>      <span class="k">if</span> <span class="n">matching_coupon_for_item</span> <span class="o">&amp;&amp;</span> <span class="n">can_apply_coupon?</span><span class="p">(</span><span class="n">item_hash</span><span class="p">,</span> <span class="n">matching_coupon_for_item</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">quantity</span> <span class="o">=</span> <span class="p">(</span><span class="n">item_hash</span><span class="o">[</span><span class="ss">:count</span><span class="o">]</span> <span class="o">/</span> <span class="n">matching_coupon_for_item</span><span class="o">[</span><span class="ss">:num</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">apply_coupons_hash</span><span class="o">[</span><span class="n">item_hash</span><span class="o">[</span><span class="ss">:name</span><span class="o">]]</span> <span class="o">=</span> <span class="p">{</span><span class="ss">:price</span> <span class="o">=&gt;</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:price</span><span class="o">]</span><span class="p">,</span> <span class="ss">:clearance</span> <span class="o">=&gt;</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:clearance</span><span class="o">]</span><span class="p">,</span> <span class="ss">:count</span> <span class="o">=&gt;</span><span class="p">(</span><span class="n">item_hash</span><span class="o">[</span><span class="ss">:count</span><span class="o">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">matching_coupon_for_item</span><span class="o">[</span><span class="ss">:num</span><span class="o">]</span> <span class="o">*</span> <span class="n">quantity</span><span class="p">))}</span>
+</span><span class='line'>        <span class="n">apply_coupons_hash</span><span class="o">[</span><span class="n">item_hash</span><span class="o">[</span><span class="ss">:name</span><span class="o">]</span> <span class="o">+</span> <span class="s1">&#39; W/COUPON&#39;</span><span class="o">]</span> <span class="o">=</span> <span class="p">{</span><span class="ss">:price</span> <span class="o">=&gt;</span> <span class="n">matching_coupon_for_item</span><span class="o">[</span><span class="ss">:cost</span><span class="o">]</span><span class="p">,</span> <span class="ss">:clearance</span> <span class="o">=&gt;</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:clearance</span><span class="o">]</span><span class="p">,</span> <span class="ss">:count</span> <span class="o">=&gt;</span> <span class="n">quantity</span><span class="p">}</span>
+</span><span class='line'>      <span class="k">else</span>
+</span><span class='line'>        <span class="n">apply_coupons_hash</span><span class="o">[</span><span class="n">item_hash</span><span class="o">[</span><span class="ss">:name</span><span class="o">]]</span> <span class="o">=</span> <span class="p">{</span><span class="ss">:price</span> <span class="o">=&gt;</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:price</span><span class="o">]</span><span class="p">,</span> <span class="ss">:clearance</span> <span class="o">=&gt;</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:clearance</span><span class="o">]</span><span class="p">,</span> <span class="ss">:count</span> <span class="o">=&gt;</span> <span class="n">item_hash</span><span class="o">[</span><span class="ss">:count</span><span class="o">]</span><span class="p">}</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>    <span class="n">apply_coupons_hash</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="c1"># returns the new hash of the updated cart after coupons are applied</span>
+</span><span class='line'><span class="c1">#=&gt; {&quot;AVOCADO&quot;=&gt;{:price=&gt;3.0, :clearance=&gt;true, :count=&gt;0},</span>
+</span><span class='line'><span class="c1">#=&gt;  &quot;AVOCADO W/COUPON&quot;=&gt;{:price=&gt;5.0, :clearance=&gt;true, :count=&gt;1}}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In summary, these are things you should keep in mind when refactoring:</p>
+
+<ul>
+<li>Make it go green first</li>
+<li>Change data structure to fit your needs</li>
+<li>Don&rsquo;t be afraid to make new methods</li>
+<li>Look for specialized methods to do the job</li>
+<li>Writing methods I wish I had</li>
+</ul>
+
+
+<p>Don&rsquo;t freak out when your tests turn red, it&rsquo;ll take a while before it turns green again, but it&rsquo;s worth it.</p>
+
+<p>In general, when you use .each and your code looks like a sandwich, you should be thinking of other iterators that is made specifically for the type of function you&rsquo;re trying to do.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">new_array</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'><span class="o">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">numbers</span><span class="o">|</span>
+</span><span class='line'>  <span class="kp">new</span> <span class="n">array</span> <span class="o">&lt;&lt;</span> <span class="n">numbers</span><span class="o">.</span><span class="n">even?</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="n">new_array</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In this sandwich, you set a new empty array, do the iteration to grab stuff and put it into the empty array, and then return the new array. This can be easily done with select, or collect.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="o">].</span><span class="n">select</span> <span class="p">{</span> <span class="o">|</span><span class="n">num</span><span class="o">|</span>  <span class="n">num</span><span class="o">.</span><span class="n">even?</span>  <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When writing code, always try to be explicit as possible, because it&rsquo;ll make it easier for other people to understand your code. You can use comments to explain what you&rsquo;re doing here, but try to make your code so clear that comments are not needed at all to explain what you&rsquo;re trying to do.</p>
+
+<p>I only recently started refactoring code, but I hope you&rsquo;ll keep these things in mind when you decide to refactor. Sandi Metz gave a talk on refactoring called <a href="https://www.youtube.com/watch?v=8bZh5LMaSmE">&lsquo;All the litting things&rsquo;</a> and you should check it out to get better at it!
+Here is a <a href="http://ghendry.net/refactor.html">cheat sheet</a> on refactoring.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1545,6 +1909,10 @@ Kitty: &ldquo;Smells like a good method.&rdquo;</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/08/28/refactoring/">Refactoring</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/08/14/in-app-messaging/">In-App Messaging</a>
       </li>
     
@@ -1558,10 +1926,6 @@ Kitty: &ldquo;Smells like a good method.&rdquo;</p>
     
       <li class="post">
         <a href="/blog/2015/07/16/tale-of-two-languages/">Tale of Two Languages</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/07/02/associations/">Associations</a>
       </li>
     
   </ul>
