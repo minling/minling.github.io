@@ -4,7 +4,7 @@
   <title><![CDATA[Theory of Coding]]></title>
   <link href="http://minling.github.io/atom.xml" rel="self"/>
   <link href="http://minling.github.io/"/>
-  <updated>2015-08-28T01:54:49-04:00</updated>
+  <updated>2015-08-28T10:31:23-04:00</updated>
   <id>http://minling.github.io/</id>
   <author>
     <name><![CDATA[MinLing Zhao]]></name>
@@ -342,6 +342,8 @@ No way am I going to remember what each part does a week later.</p>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="o">].</span><span class="n">select</span> <span class="p">{</span> <span class="o">|</span><span class="n">num</span><span class="o">|</span>  <span class="n">num</span><span class="o">.</span><span class="n">even?</span>  <span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
+
+<p>If you realize that there is duplication of code, you can probably abstract it away into a method. However, don&rsquo;t make the wrong abstraction. It&rsquo;s better to have duplication than the wrong abstraction. As Sandi Metz says, it&rsquo;s like surfing farther and farther out into the ocean, when you&rsquo;re doing the wrong abstraction.</p>
 
 <p>When writing code, always try to be explicit as possible, because it&rsquo;ll make it easier for other people to understand your code. You can use comments to explain what you&rsquo;re doing here, but try to make your code so clear that comments are not needed at all to explain what you&rsquo;re trying to do.</p>
 
