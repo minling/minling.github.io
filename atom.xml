@@ -4,7 +4,7 @@
   <title><![CDATA[Theory of Coding]]></title>
   <link href="http://minling.github.io/atom.xml" rel="self"/>
   <link href="http://minling.github.io/"/>
-  <updated>2015-09-03T01:11:37-04:00</updated>
+  <updated>2015-09-03T01:15:51-04:00</updated>
   <id>http://minling.github.io/</id>
   <author>
     <name><![CDATA[MinLing Zhao]]></name>
@@ -107,7 +107,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This model can now be used with the nested <code>fields_for</code>. Back in the controller, we were setting the <code>@post.tags_attributes = params[:tags_attributes]</code>. In the model, because we wrote <code>accepts_nested_attributes_for</code>, you have a writer method to set the params from the controller into &lsquo;tags&rsquo; passed into the code below.</p>
+<p>This model can now be used with the nested <code>fields_for</code>. Back in the controller, we were setting the <code>@post.tags_attributes = params[:tags_attributes]</code>. In the model, because we wrote <code>accepts_nested_attributes_for</code>, we now have a writer method to set the params from the controller into &lsquo;tags&rsquo; passed into the code below.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
