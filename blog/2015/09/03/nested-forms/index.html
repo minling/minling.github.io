@@ -1,0 +1,359 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Nested Forms - Theory of Coding</title>
+  <meta name="author" content="MinLing Zhao">
+
+  
+  <meta name="description" content="Nested Forms with RAILS Nested forms is a form within another form. It&rsquo;s nice to not jump between the parent and child forms when creating both &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://minling.github.io/blog/2015/09/03/nested-forms">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Theory of Coding" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href='//fonts.googleapis.com/css?family=Sintony' rel='stylesheet' type='text/css'>
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
+  
+
+</head>
+
+<body   >
+  <nav role="navigation">
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:minling.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Type to Search"/>
+  </fieldset>
+</form>
+  
+
+<ul class="main-navigation">
+  <li><a href="/">Home</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <header role="banner"><div class='hero'>
+	<div class='wrap'>
+	  <h1><a href="/">Theory of Coding</a></h1>
+	  
+	    <h2>Web Development blog</h2>
+	  
+	</div>
+</div>
+
+</header>
+  
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Nested Forms</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-03T01:11:08-04:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>Nested Forms with RAILS</h2>
+
+<p>Nested forms is a form within another form. It&rsquo;s nice to not jump between the parent and child forms when creating both the parent and the child in the same form. In this example, I&rsquo;m using Post as a parent and Tags as the child. A Post will have many Tags.</p>
+
+<p>We made <code>form_for</code> for the new Post. We want to make a nested form so that we can create a form for a new Tag also. To do this, we will use <code>fields_for</code> to make a <code>text_field</code> to enter a new tag. We will associate it with <code>@post.tags</code> because I want to make the tag for that particular post, <code>@post</code>.  We will call this <code>fields_for :tags_attributes</code> because I want to set <code>tags_attributes</code> to be included in my private params in my Post controller.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&lt;</span><span class="sx">%= form_for(@post) do |f| %&gt;</span>
+</span><span class='line'><span class="sx">  ..... #code on the form </span>
+</span><span class='line'><span class="sx"> &lt;%=</span> <span class="n">fields_for</span> <span class="ss">:tags_attributes</span><span class="p">,</span> <span class="vi">@post</span><span class="o">.</span><span class="n">tags</span> <span class="k">do</span> <span class="o">|</span><span class="n">tag_field</span><span class="o">|</span> <span class="sx">%&gt;</span>
+</span><span class='line'><span class="sx">    New Tag : &lt;%= tag_field.text_field :name %&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="sx">% end %&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sx"> &lt;%= f.submit %&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p><img src="http://i.imgur.com/X9S3Xn4.png" alt="Imgur" /></p>
+
+<p>See how if you inspect element, this new tag text field is called <code>tags_attributes</code>? That is because that&rsquo;s what we called it in the <code>fields_for</code> and when we press <strong>Submit</strong>, it will have params with that are nicely hashed.</p>
+
+<p>To allow this in our params, we will do add <code>tags_attributes</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="kp">private</span>
+</span><span class='line'> <span class="k">def</span> <span class="nf">post_params</span>
+</span><span class='line'>      <span class="n">params</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="ss">:post</span><span class="p">)</span><span class="o">.</span><span class="n">permit</span><span class="p">(</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:content</span><span class="p">,</span><span class="ss">:tags_attributes</span> <span class="o">=&gt;[</span><span class="ss">:name</span><span class="o">]</span><span class="p">,</span><span class="ss">:tag_ids</span> <span class="o">=&gt;</span> <span class="o">[]</span><span class="p">)</span>
+</span><span class='line'> <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Remember, we wanted to set a new tag name <code>:name</code> to <code>:tags_attributes</code> in our form text field.</p>
+
+<p>As a reminder, we made post_params as a private method so that we can do mass assignment, and prevent a hacker from editing the params and changing something in our forms that we didn&rsquo;t want to change.</p>
+
+<p>Now this will allow us to get a nice hash in our params <code>"tags_attributes"=&gt;{"name"=&gt;"fruit"},</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="p">{</span><span class="s2">&quot;utf8&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;✓&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;authenticity_token&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;RyImq+DI3FBEjDYRd3U9uYbmO2sL+qwE+6t8vsR0nmO//Au7dVYXQZFQqaxYGPk0gSYFS1tRuT935TfKFBQvnA==&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;post&quot;</span><span class="o">=&gt;</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;hey 5&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;shdfudhsfdsfdfds&quot;</span><span class="p">,</span> <span class="s2">&quot;tag_ids&quot;</span><span class="o">=&gt;[</span><span class="s2">&quot;148&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="o">]</span><span class="p">},</span>
+</span><span class='line'> <span class="s2">&quot;tags_attributes&quot;</span><span class="o">=&gt;</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;fruit&quot;</span><span class="p">},</span>
+</span><span class='line'> <span class="s2">&quot;commit&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;Create Post&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;controller&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;posts&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;action&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;create&quot;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now that we got the params we want, we have to actually create the new tag.</p>
+
+<p>In the def create of our Post controller, we will create a new method called tags_attributes to do just that</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="c1"># for @post, I want to do tags_attributes and set that to the params I just made</span>
+</span><span class='line'>  <span class="vi">@post</span><span class="o">.</span><span class="n">tags_attributes</span> <span class="o">=</span> <span class="n">params</span><span class="o">[</span><span class="ss">:tags_attributes</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In the Post Controller, if the Tags is an association with Post, you can use <code>accepts_nested_attributes_for</code> to define the write method for you. You can <code>allow_destroy: true</code> so if the post is deleted, this tag will be deleted also.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Post</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">has_many</span> <span class="ss">:tags</span><span class="p">,</span> <span class="ss">:through</span> <span class="o">=&gt;</span> <span class="ss">:post_tags</span>
+</span><span class='line'>  <span class="n">accepts_nested_attributes_for</span> <span class="ss">:tags</span><span class="p">,</span> <span class="ss">allow_destroy</span><span class="p">:</span> <span class="kp">true</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This model can now be used with the nested <code>fields_for</code>. Back in the controller, we were setting the <code>@post.tags_attributes = params[:tags_attributes]</code>. In the model, because we wrote <code>accepts_nested_attributes_for</code>, you have a writer method to set the params from the controller into &lsquo;tags&rsquo; passed into the code below.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">tags_attributes</span><span class="o">=</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span>
+</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="nb">name</span><span class="p">:</span> <span class="n">tags</span><span class="o">[</span><span class="ss">:name</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here, we are building tags, setting the name to the passed in params <code>tags[:name]</code>.</p>
+
+<p>That&rsquo;s the gist of it. This allowed me to create a new tag and associate it with this post, without making separate forms.</p>
+
+<p>To read more about nested forms, here is some documentation about it from <a href="http://apidock.com/rails/ActionView/Helpers/FormBuilder/fields_for">ApiDock</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">MinLing Zhao</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-03T01:11:08-04:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://minling.github.io/blog/2015/09/03/nested-forms/" data-via="" data-counturl="http://minling.github.io/blog/2015/09/03/nested-forms/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/08/28/refactoring/" title="Previous Post: Refactoring">&laquo; Refactoring</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+<!-- 
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/09/03/nested-forms/">Nested Forms</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/28/refactoring/">Refactoring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/14/in-app-messaging/">In-App Messaging</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/11/amazons3-plus-paperclip/">Amazons3 + Paperclip</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/29/gon-gem/">Gon Gem</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+ -->
+
+    </div>
+  </div>
+  <!-- <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - MinLing Zhao -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+
+
+</footer> -->
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+  
+  <aside class="sidebar">
+    
+      <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/09/03/nested-forms/">Nested Forms</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/28/refactoring/">Refactoring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/14/in-app-messaging/">In-App Messaging</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/11/amazons3-plus-paperclip/">Amazons3 + Paperclip</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/29/gon-gem/">Gon Gem</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+    
+  </aside>
+  
+</body>
+
+
+</html>
