@@ -101,79 +101,9 @@
 
 <p>Nested forms is a form within another form. It&rsquo;s nice to not jump between the parent and child forms when creating both the parent and the child in the same form. In this example, I&rsquo;m using Post as a parent and Tags as the child. A Post will have many Tags.</p>
 
-<p>We made <code>form_for</code> for the new Post. We want to make a nested form so that we can create a form for a new Tag also. To do this, we will use <code>fields_for</code> to make a <code>text_field</code> to enter a new tag. We will associate it with <code>@post.tags</code> because I want to make the tag for that particular post, <code>@post</code>.  We will call this <code>fields_for :tags_attributes</code> because I want to set <code>tags_attributes</code> to be included in my private params in my Post controller.</p>
+<h2><code>accepts_nested_attributes_for</code></h2>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&lt;</span><span class="sx">%= form_for(@post) do |f| %&gt;</span>
-</span><span class='line'><span class="sx">  ..... #code on the form </span>
-</span><span class='line'><span class="sx"> &lt;%=</span> <span class="n">fields_for</span> <span class="ss">:tags_attributes</span><span class="p">,</span> <span class="vi">@post</span><span class="o">.</span><span class="n">tags</span> <span class="k">do</span> <span class="o">|</span><span class="n">tag_field</span><span class="o">|</span> <span class="sx">%&gt;</span>
-</span><span class='line'><span class="sx">    New Tag : &lt;%= tag_field.text_field :name %&gt;</span>
-</span><span class='line'>  <span class="o">&lt;</span><span class="sx">% end %&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sx"> &lt;%= f.submit %&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-
-<p><img src="http://i.imgur.com/X9S3Xn4.png" alt="Imgur" /></p>
-
-<p>See how if you inspect element, this new tag text field is called <code>tags_attributes</code>? That is because that&rsquo;s what we called it in the <code>fields_for</code> and when we press <strong>Submit</strong>, it will have params with that are nicely hashed.</p>
-
-<p>To allow this in our params, we will do add <code>tags_attributes</code></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="kp">private</span>
-</span><span class='line'> <span class="k">def</span> <span class="nf">post_params</span>
-</span><span class='line'>      <span class="n">params</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="ss">:post</span><span class="p">)</span><span class="o">.</span><span class="n">permit</span><span class="p">(</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:content</span><span class="p">,</span><span class="ss">:tags_attributes</span> <span class="o">=&gt;[</span><span class="ss">:name</span><span class="o">]</span><span class="p">,</span><span class="ss">:tag_ids</span> <span class="o">=&gt;</span> <span class="o">[]</span><span class="p">)</span>
-</span><span class='line'> <span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Remember, we wanted to set a new tag name <code>:name</code> to <code>:tags_attributes</code> in our form text field.</p>
-
-<p>As a reminder, we made post_params as a private method so that we can do mass assignment, and prevent a hacker from editing the params and changing something in our forms that we didn&rsquo;t want to change.</p>
-
-<p>Now this will allow us to get a nice hash in our params <code>"tags_attributes"=&gt;{"name"=&gt;"fruit"},</code></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="p">{</span><span class="s2">&quot;utf8&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;✓&quot;</span><span class="p">,</span>
-</span><span class='line'> <span class="s2">&quot;authenticity_token&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;RyImq+DI3FBEjDYRd3U9uYbmO2sL+qwE+6t8vsR0nmO//Au7dVYXQZFQqaxYGPk0gSYFS1tRuT935TfKFBQvnA==&quot;</span><span class="p">,</span>
-</span><span class='line'> <span class="s2">&quot;post&quot;</span><span class="o">=&gt;</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;hey 5&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;shdfudhsfdsfdfds&quot;</span><span class="p">,</span> <span class="s2">&quot;tag_ids&quot;</span><span class="o">=&gt;[</span><span class="s2">&quot;148&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="o">]</span><span class="p">},</span>
-</span><span class='line'> <span class="s2">&quot;tags_attributes&quot;</span><span class="o">=&gt;</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;fruit&quot;</span><span class="p">},</span>
-</span><span class='line'> <span class="s2">&quot;commit&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;Create Post&quot;</span><span class="p">,</span>
-</span><span class='line'> <span class="s2">&quot;controller&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;posts&quot;</span><span class="p">,</span>
-</span><span class='line'> <span class="s2">&quot;action&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;create&quot;</span><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now that we got the params we want, we have to actually create the new tag.</p>
-
-<p>In the def create of our Post controller, we will create a new method called tags_attributes to do just that</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="c1"># for @post, I want to do tags_attributes and set that to the params I just made</span>
-</span><span class='line'>  <span class="vi">@post</span><span class="o">.</span><span class="n">tags_attributes</span> <span class="o">=</span> <span class="n">params</span><span class="o">[</span><span class="ss">:tags_attributes</span><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>In the Post Controller, if the Tags is an association with Post, you can use <code>accepts_nested_attributes_for</code> to define the write method for you. You can <code>allow_destroy: true</code> so if the post is deleted, this tag will be deleted also.</p>
+<p>There is a cool method <code>accepts_nested_attributes_for</code> from ActiveRecord that allows you to save attributes on associated records through the parent. This method gives you the attribute writer, in this case, we got the <code>tags_attributes=(attributes)</code> writer method. You can add <code>allow_destroy: true</code> so if the post is deleted, this tag will be deleted also.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -186,20 +116,103 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This model can now be used with the nested <code>fields_for</code>. Back in the controller, we were setting the <code>@post.tags_attributes = params[:tags_attributes]</code>. In the model, because we wrote <code>accepts_nested_attributes_for</code>, we now have a writer method to set the params from the controller into &lsquo;tags&rsquo; passed into the code below.</p>
+<h2>The Form</h2>
+
+<p>We made <code>form_for</code> for the new Post. We want to make a nested form so that we can create a form for a new Tag also. To do this, we will use <code>fields_for</code> to make a <code>text_field</code> to enter a new tag. We will be making a <code>Tag.new</code> in place for the new tag.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">tags_attributes</span><span class="o">=</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span>
-</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="nb">name</span><span class="p">:</span> <span class="n">tags</span><span class="o">[</span><span class="ss">:name</span><span class="o">]</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&lt;</span><span class="sx">%= form_for(@post) do |f| %&gt;</span>
+</span><span class='line'><span class="sx">  ..... #other code on the form </span>
+</span><span class='line'><span class="sx"> &lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">fields_for</span> <span class="ss">:tags</span><span class="p">,</span> <span class="no">Tag</span><span class="o">.</span><span class="n">new</span> <span class="k">do</span> <span class="o">|</span><span class="n">tag_field</span><span class="o">|</span> <span class="sx">%&gt;</span>
+</span><span class='line'><span class="sx">  &lt;%= tag_field.label :name %&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="sx">%= tag_field.text_field :name %&gt;</span>
+</span><span class='line'><span class="sx">  &lt;% end %&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sx"> &lt;%=</span> <span class="n">f</span><span class="o">.</span><span class="n">submit</span> <span class="o">%&gt;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Here, we are building tags, setting the name to the passed in params <code>tags[:name]</code>.</p>
+<p></p>
 
-<p>That&rsquo;s the gist of it. This allowed me to create a new tag and associate it with this post, without making separate forms.</p>
+<h2>Params</h2>
+
+<p><img src="http://i.imgur.com/zMgdHpX.png" alt="Imgur" /></p>
+
+<p>See how if you inspect element, this new tag text field is called <code>tags_attributes</code>? This came from the cool method <code>accepts_nested_attributes_for</code> in the Post model. This automatically gives you nested params <code>post[tags_attributes][0][name]</code>. Although we did <code>fields_for :tags</code>, it gives you <code>tags_attributes</code> in the params for free. It is also [0] because this is the first tag we&rsquo;re making, but you can certainly enter more tag inputs if you wish.</p>
+
+<p>To allow this in our params, we will do add <code>tags_attributes</code> with the name field.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="kp">private</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">post_params</span>
+</span><span class='line'>    <span class="n">params</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="ss">:post</span><span class="p">)</span><span class="o">.</span><span class="n">permit</span><span class="p">(</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:content</span><span class="p">,</span><span class="ss">:tags_attributes</span> <span class="o">=&gt;[</span><span class="ss">:name</span><span class="o">]</span><span class="p">,</span><span class="ss">:tag_ids</span> <span class="o">=&gt;</span> <span class="o">[]</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As a reminder, we made post_params as a private method so that we can do mass assignment, and prevent a hacker from editing the params and changing something in our forms that we didn&rsquo;t want to change.</p>
+
+<p>Now this will allow us to get a nested hash in our params that&rsquo;s part of Post. <code>"tags_attributes"=&gt;{"0"=&gt;{"name"=&gt;"mrkittycat"}}},</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="p">{</span><span class="s2">&quot;utf8&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;✓&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;authenticity_token&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;r/vgXWbzduyZIQxVetNzcDJEt3CbDX4Js2oclxXYq5eUjmZdoRCB+PP17xoBPuIQkJPHCWRzmaBTQ/1vH6WfIA==&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;post&quot;</span><span class="o">=&gt;</span>
+</span><span class='line'>  <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;The new post name&quot;</span><span class="p">,</span>
+</span><span class='line'>   <span class="s2">&quot;content&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;yay writing a new post&quot;</span><span class="p">,</span>
+</span><span class='line'>   <span class="s2">&quot;tag_ids&quot;</span><span class="o">=&gt;[</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;100&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="o">]</span><span class="p">,</span>
+</span><span class='line'>   <span class="s2">&quot;tags_attributes&quot;</span><span class="o">=&gt;</span><span class="p">{</span><span class="s2">&quot;0&quot;</span><span class="o">=&gt;</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;mrkittycat&quot;</span><span class="p">}}},</span>
+</span><span class='line'> <span class="s2">&quot;commit&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;Create Post&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;controller&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;posts&quot;</span><span class="p">,</span>
+</span><span class='line'> <span class="s2">&quot;action&quot;</span><span class="o">=&gt;</span><span class="s2">&quot;create&quot;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>def create</h2>
+
+<p>Now that we got the params we want, we have to actually create the new tag.</p>
+
+<p>Once the form is submitted, this will go to the def create method of the Post controller, because it is sending a post request to the server.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>  <span class="vi">@post</span> <span class="o">=</span> <span class="no">Post</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">post_params</span><span class="p">)</span>
+</span><span class='line'>  <span class="c1">#other code here</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We will do Post.new and put in the post_params from our private method, and it will set its attributes to whatever we provided in the params.</p>
+
+<p>It will ALSO set the :name to the newly created tag, and associate this tag to this particular post. This was made possible because of the <code>accepts_nested_attributes_for</code> method in our Post model.</p>
+
+<p><img src="http://i.imgur.com/wQhXWDG.png" alt="Imgur" /></p>
+
+<p>Great! Now we have the tag that we just created&ndash; mrkittycat.</p>
+
+<p>That&rsquo;s the gist of it. This allowed me to create a new tag and associate it with this post, without making separate forms. It comes in handy at times.</p>
 
 <p>To read more about nested forms, here is some documentation about it from <a href="http://apidock.com/rails/ActionView/Helpers/FormBuilder/fields_for">ApiDock</a></p>
 </div>
